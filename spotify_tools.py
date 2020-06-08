@@ -96,7 +96,7 @@ def track_df(track_id):
     track_artists = [x['id'] for x in trk['artists']]
     track_album = trk['album']['id']
     track_pop = trk['popularity']
-    track_explicit = trk['explicit']
+    track_explicit = int(trk['explicit'] == True)
     track_duration = trk['duration_ms']
     track_key = trk_feat['key']
     track_mode = trk_feat['mode']
