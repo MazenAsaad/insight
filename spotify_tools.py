@@ -33,104 +33,106 @@ def playlist_df(playlist_id):
     })
     return pl_df
 
-# Given an artist id, put relevant info into a dataframe
-def artist_df(artist_id):
-    # Set credentials and get artist
+# Given a list of artist ids (limit 50), put relevant info into a dataframe
+def artist_df(artist_id_list):
+    # Check if the input is an individual string and not a list
+    if isinstance(artist_id_list,str):
+        artist_id_list = [artist_id_list]
+    # Check the input list length
+    if len(artist_id_list) > 50:
+        raise ValueError('Input list must not exceed 50 artists')
+        
+    # Set credentials and get artists
     sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
-    art = sp.artist(artist_id)
+    arts = sp.artists(artist_id_list)
     
-    # Pull out the relevant artist information
-    art_name = art['name']
-    art_id = art['id']
-    art_genres = art['genres']
-    art_pop = art['popularity']
+    art_df_list = []
+    for art in arts['artists']:
+        # Pull out the relevant artist information
+        art_dict = {'Artist_Name':art['name'],
+                    'Artist_ID':art['id'],
+                    'Artist_Genres':df_listcell(art['genres'])[0],
+                    'Artist_Followers':art['followers']['total'],
+                    'Artist_Popularity':art['popularity']}
+        art_df_list.append(art_dict)
     
     # Put it into a dataframe
-    art_df = pd.DataFrame({
-        'Artist_Name':art_name,
-        'Artist_ID':art_id,
-        'Artist_Genres':df_listcell(art['genres']),
-        'Artist_Popularity':art_pop
-    })
+    art_df = pd.DataFrame(art_df_list)
     return art_df
 
-# Given an album id, put relevant info into a dataframe
-def album_df(album_id):
-    # Set credentials and get album
-    sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
-    alb = sp.album(album_id)
+# Given a list of album ids (limit 20), put relevant info into a dataframe
+def album_df(album_id_list):
+    # Check if the input is an individual string and not a list
+    if isinstance(album_id_list,str):
+        album_id_list = [album_id_list]
+    # Check the input list length
+    if len(album_id_list) > 20:
+        raise ValueError('Input list must not exceed 20 albums')
     
-    # Pull out the relevant album information
-    alb_name = alb['name']
-    alb_id = alb['id']
-    alb_type = alb['album_type']
-    alb_artists = [x['id'] for x in alb['artists']]
-    alb_genres = alb['genres']
-    alb_pop = alb['popularity']
-    alb_label = alb['label']
-    alb_date = alb['release_date']
-
+    # Set credentials and get albums
+    sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
+    albs = sp.albums(album_id_list)
+    
+    alb_df_list = []
+    for alb in albs['albums']:
+        # Pull out the relevant album information
+        alb_dict = {'Album_Name':alb['name'],
+                    'Album_ID':alb['id'],
+                    'Album_Type':alb['album_type'],
+                    'Album_Artists':df_listcell([x['id'] for x in alb['artists']])[0],
+                    'Album_Genres':df_listcell(alb['genres'])[0],
+                    'Album_Popularity':alb['popularity'],
+                    'Album_Label':alb['label'],
+                    'Album_Release_Date':alb['release_date']}
+        alb_df_list.append(alb_dict)
+    
     # Put it into a dataframe
-    alb_df = pd.DataFrame({
-        'Album_Name':alb_name,
-        'Album_ID':alb_id,
-        'Album_Type':alb_type,
-        'Album_Artists':df_listcell(alb_artists),
-        'Album_Genres':df_listcell(alb_genres),
-        'Album_Popularity':alb_pop,
-        'Album_Label':alb_label,
-        'Album_Release_Date':alb_date
-    })
+    alb_df = pd.DataFrame(alb_df_list)
     return alb_df
 
-# Given a track id, put relevant info into a dataframe (including audio features)
-def track_df(track_id):
-    # Set credentials and get track
+# Given a list of track ids (limit 50), put relevant info into a dataframe (including audio features)
+def track_df(track_id_list):
+    # Check if the input is an individual string and not a list
+    if isinstance(track_id_list,str):
+        track_id_list = [track_id_list]
+    # Check the input list length
+    if len(track_id_list) > 50:
+        raise ValueError('Input list must not exceed 50 tracks')
+        
+    # Set credentials and get tracks
     sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
-    trk = sp.track(track_id)
-    trk_feat = sp.audio_features(track_id)[0]
+    trks = sp.tracks(track_id_list)
+    trks_feat = sp.audio_features(track_id_list)
     
-    # Pull out the relevant track information
-    track_name = trk['name']
-    track_id = trk['id']
-    track_artists = [x['id'] for x in trk['artists']]
-    track_album = trk['album']['id']
-    track_pop = trk['popularity']
-    track_explicit = int(trk['explicit'] == True)
-    track_duration = trk['duration_ms']
-    track_key = trk_feat['key']
-    track_mode = trk_feat['mode']
-    track_timesig = trk_feat['time_signature']
-    track_acousticness = trk_feat['acousticness']
-    track_danceability = trk_feat['danceability']
-    track_energy = trk_feat['energy']
-    track_instrumentalness = trk_feat['instrumentalness']
-    track_liveness = trk_feat['liveness']
-    track_loudness = trk_feat['loudness']
-    track_speechiness = trk_feat['speechiness']
-    track_valence = trk_feat['valence']
-    track_tempo = trk_feat['tempo']
+    trk_df_list = []
+    for trk in trks['tracks']:
+        # Pull out the relevant track information
+        trk_dict = {'Track_Name':trk['name'],
+                    'Track_ID':trk['id'],
+                    'Track_Artists':df_listcell([x['id'] for x in trk['artists']])[0],
+                    'Track_Album':trk['album']['id'],
+                    'Track_Popularity':trk['popularity'],
+                    'Track_Explicitness':int(trk['explicit'] == True),
+                    'Track_Duration':trk['duration_ms']}
+        trk_df_list.append(trk_dict)
+    
+    trk_feat_df_list = []
+    for trk_feat in trks_feat:
+        # Pull out the relevant track feature information
+        trk_feat_dict = {'Track_Key':trk_feat['key'],
+                         'Track_Mode':trk_feat['mode'],
+                         'Track_TimeSig':trk_feat['time_signature'],
+                         'Track_Acousticness':trk_feat['acousticness'],
+                         'Track_Danceability':trk_feat['danceability'],
+                         'Track_Energy':trk_feat['energy'],
+                         'Track_Instrumentalness':trk_feat['instrumentalness'],
+                         'Track_Liveness':trk_feat['liveness'],
+                         'Track_Loudness':trk_feat['loudness'],
+                         'Track_Speechiness':trk_feat['speechiness'],
+                         'Track_Valence':trk_feat['valence'],
+                         'Track_Tempo':trk_feat['tempo']}
+        trk_feat_df_list.append(trk_feat_dict)    
 
     # Put it into a dataframe
-    trk_df = pd.DataFrame({
-        'Track_Name':track_name,
-        'Track_ID':track_id,
-        'Track_Artists':df_listcell(track_artists),
-        'Track_Album':track_album,
-        'Track_Popularity':track_pop,
-        'Track_Explicitness':track_explicit,
-        'Track_Duration':track_duration,
-        'Track_Key':track_key,
-        'Track_Mode':track_mode,
-        'Track_TimeSig':track_timesig,
-        'Track_Acousticness':track_acousticness,
-        'Track_Danceability':track_danceability,
-        'Track_Energy':track_energy,
-        'Track_Instrumentalness':track_instrumentalness,
-        'Track_Liveness':track_liveness,
-        'Track_Loudness':track_loudness,
-        'Track_Speechiness':track_speechiness,
-        'Track_Valence':track_valence,
-        'Track_Tempo':track_tempo
-    })
+    trk_df = pd.DataFrame(trk_df_list).join(pd.DataFrame(trk_feat_df_list))
     return trk_df
