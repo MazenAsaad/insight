@@ -49,9 +49,9 @@ def artist_df(artist_id_list):
     sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
     arts = sp.artists(artist_id_list)
     
+    # Pull out the relevant artist information
     art_df_list = []
     for art in arts['artists']:
-        # Pull out the relevant artist information
         art_dict = {'Artist_Name':art['name'],
                     'Artist_ID':art['id'],
                     'Artist_Genres':df_listcell(art['genres']),
@@ -76,9 +76,9 @@ def album_df(album_id_list):
     sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
     albs = sp.albums(album_id_list)
     
+    # Pull out the relevant album information
     alb_df_list = []
     for alb in albs['albums']:
-        # Pull out the relevant album information
         alb_dict = {'Album_Name':alb['name'],
                     'Album_ID':alb['id'],
                     'Album_Type':alb['album_type'],
@@ -106,10 +106,10 @@ def track_df(track_id_list):
     sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
     trks = sp.tracks(track_id_list)
     trks_feat = sp.audio_features(track_id_list)
-    
+
+    # Pull out the relevant track information    
     trk_df_list = []
     for trk in trks['tracks']:
-        # Pull out the relevant track information
         trk_dict = {'Track_Name':trk['name'],
                     'Track_ID':trk['id'],
                     'Track_Artists':df_listcell([x['id'] for x in trk['artists']]),
@@ -119,9 +119,9 @@ def track_df(track_id_list):
                     'Track_Duration':trk['duration_ms']}
         trk_df_list.append(trk_dict)
     
+    # Pull out the relevant track feature information
     trk_feat_df_list = []
     for trk_feat in trks_feat:
-        # Pull out the relevant track feature information
         trk_feat_dict = {'Track_Key':trk_feat['key'],
                          'Track_Mode':trk_feat['mode'],
                          'Track_TimeSig':trk_feat['time_signature'],
@@ -139,3 +139,67 @@ def track_df(track_id_list):
     # Put it into a dataframe
     trk_df = pd.DataFrame(trk_df_list).join(pd.DataFrame(trk_feat_df_list))
     return trk_df
+
+# Given an artist id, return the id of all albums as a list
+def artist_albumlist(artist_id):
+    # Set credentials
+    sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
+    
+    # Loop through album types and get info from API
+    alb_types = ['album','single','compilation'] # exclude 'appears_on'
+    results = []
+    for typ in alb_types:
+        art = sp.artist_albums(artist_id, album_type=typ, limit=50)
+    
+        # Put data into a list and go through pagination
+        results.extend([x['id'] for x in art['items']])
+        while art['next']:
+            art = sp.next(art)
+            results.extend([x['id'] for x in art['items']])
+    return results
+
+# Given an album id, return the id of all tracks as a list
+def album_tracklist(album_id):
+    # Set credentials and get info from API
+    sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
+    alb = sp.album_tracks(album_id, limit=50)
+    
+    # Put data into a list and go through pagination
+    results = [x['id'] for x in alb['items']]
+    while alb['next']:
+        alb = sp.next(alb)
+        results.extend([x['id'] for x in alb['items']])
+    return results
+
+# Given an artist id, return the id of all tracks as a list
+def artist_tracklist(artist_id):
+    # NB: It's much faster to only call spotipy.Spotify() once
+    # rather than chaining artist_albumlist() & album_tracklist()
+    
+    # Set credentials
+    sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
+
+    # Loop through album types and get artist's albums from API
+    alb_types = ['album','single','compilation'] # exclude 'appears_on'
+    albumlist = []
+    for typ in alb_types:
+        art = sp.artist_albums(artist_id, album_type=typ, limit=50)
+    
+        # Put data into a list and go through pagination
+        albumlist.extend([x['id'] for x in art['items']])
+        while art['next']:
+            art = sp.next(art)
+            albumlist.extend([x['id'] for x in art['items']])    
+    
+    # Pull the tracks for each album one-by-one
+    tracklist = []
+    for album in albumlist:
+        # Get album tracks from API
+        alb = sp.album_tracks(album, limit=50)
+        
+        # Put data into a list and go through pagination
+        tracklist.extend([x['id'] for x in alb['items']])
+        while alb['next']:
+            alb = sp.next(alb)
+            tracklist.extend([x['id'] for x in alb['items']])
+    return tracklist
