@@ -20,15 +20,20 @@ def playlist_df(playlist_id):
     pl = sp.playlist(playlist_id)
     
     # Pull out the relevant playlist information
-    track_num = []
+    track_obj = pl['tracks']
     track_id = []
-    for num, data in enumerate(pl['tracks']['items']):
-        track_num.append(num+1)
-        track_id.append(data['track']['id'])
+    for trk in track_obj['items']:
+        track_id.append(trk['track']['id'])
+    
+    # Go through the pagination for the rest of the data
+    while track_obj['next']:
+        track_obj = sp.next(track_obj)
+        for trk in track_obj['items']:
+            track_id.append(trk['track']['id'])
     
     # Put it into a dataframe
-    pl_df = pd.DataFrame({'Track_Position':track_num,
-                          'Track_ID':track_id})
+    pl_df = pd.DataFrame({'Track_ID':track_id})
+    pl_df['Track_Position'] = pl_df.index + 1
     return pl_df
 
 # Given a list of artist ids (limit 50), put relevant info into a dataframe
