@@ -11,7 +11,7 @@ os.environ["SPOTIPY_CLIENT_SECRET"] = client_secret
 def df_listcell(input_list):
     x = pd.Series([],dtype='object')
     x[0] = input_list
-    return x
+    return x[0]
 
 # Given a playlist id, put relevant info into a dataframe
 def playlist_df(playlist_id):
@@ -27,10 +27,8 @@ def playlist_df(playlist_id):
         track_id.append(data['track']['id'])
     
     # Put it into a dataframe
-    pl_df = pd.DataFrame({
-        'Track_Position':track_num,
-        'Track_ID':track_id
-    })
+    pl_df = pd.DataFrame({'Track_Position':track_num,
+                          'Track_ID':track_id})
     return pl_df
 
 # Given a list of artist ids (limit 50), put relevant info into a dataframe
@@ -51,7 +49,7 @@ def artist_df(artist_id_list):
         # Pull out the relevant artist information
         art_dict = {'Artist_Name':art['name'],
                     'Artist_ID':art['id'],
-                    'Artist_Genres':df_listcell(art['genres'])[0],
+                    'Artist_Genres':df_listcell(art['genres']),
                     'Artist_Followers':art['followers']['total'],
                     'Artist_Popularity':art['popularity']}
         art_df_list.append(art_dict)
@@ -79,8 +77,8 @@ def album_df(album_id_list):
         alb_dict = {'Album_Name':alb['name'],
                     'Album_ID':alb['id'],
                     'Album_Type':alb['album_type'],
-                    'Album_Artists':df_listcell([x['id'] for x in alb['artists']])[0],
-                    'Album_Genres':df_listcell(alb['genres'])[0],
+                    'Album_Artists':df_listcell([x['id'] for x in alb['artists']]),
+                    'Album_Genres':df_listcell(alb['genres']),
                     'Album_Popularity':alb['popularity'],
                     'Album_Label':alb['label'],
                     'Album_Release_Date':alb['release_date']}
@@ -109,7 +107,7 @@ def track_df(track_id_list):
         # Pull out the relevant track information
         trk_dict = {'Track_Name':trk['name'],
                     'Track_ID':trk['id'],
-                    'Track_Artists':df_listcell([x['id'] for x in trk['artists']])[0],
+                    'Track_Artists':df_listcell([x['id'] for x in trk['artists']]),
                     'Track_Album':trk['album']['id'],
                     'Track_Popularity':trk['popularity'],
                     'Track_Explicitness':int(trk['explicit'] == True),
