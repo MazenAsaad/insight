@@ -203,3 +203,20 @@ def artist_tracklist(artist_id):
             alb = sp.next(alb)
             tracklist.extend([x['id'] for x in alb['items']])
     return tracklist
+
+# Given an artist id, return the id of all 20 related artists in a list
+def related_artists(artist_id):
+    # Set credentials and return related artists
+    sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
+    arts = sp.artist_related_artists(artist_id)
+    related = [x['id'] for x in arts['artists']]
+    return related
+
+# Find artist or album name & id from a search query
+def search_spotify(query, fieldtype='artist'):
+    # Set credentials and run the query
+    sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
+    results = sp.search(q=query, type=fieldtype)
+    
+    # Return the name and id results as a tuple
+    return [(x['name'],x['id']) for x in results[fieldtype+'s']['items']]
