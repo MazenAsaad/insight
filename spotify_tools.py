@@ -7,11 +7,15 @@ from spotify_credentials import *
 os.environ["SPOTIPY_CLIENT_ID"] = client_id
 os.environ["SPOTIPY_CLIENT_SECRET"] = client_secret
 
+
+
 # Helper function to store lists in dataframes
 def df_listcell(input_list):
     x = pd.Series([],dtype='object')
     x[0] = input_list
     return x[0]
+
+
 
 # Given a playlist id, put relevant info into a dataframe
 def playlist_df(playlist_id):
@@ -35,6 +39,8 @@ def playlist_df(playlist_id):
     pl_df = pd.DataFrame({'Track_ID':track_id})
     pl_df['Track_Position'] = pl_df.index + 1
     return pl_df
+
+
 
 # Given a list of artist ids (limit 50), put relevant info into a dataframe
 def artist_df(artist_id_list):
@@ -62,6 +68,8 @@ def artist_df(artist_id_list):
     # Put it into a dataframe
     art_df = pd.DataFrame(art_df_list)
     return art_df
+
+
 
 # Given a list of album ids (limit 20), put relevant info into a dataframe
 def album_df(album_id_list):
@@ -92,6 +100,8 @@ def album_df(album_id_list):
     # Put it into a dataframe
     alb_df = pd.DataFrame(alb_df_list)
     return alb_df
+
+
 
 # Given a list of track ids (limit 50), put relevant info into a dataframe (including audio features)
 def track_df(track_id_list):
@@ -140,6 +150,8 @@ def track_df(track_id_list):
     trk_df = pd.DataFrame(trk_df_list).join(pd.DataFrame(trk_feat_df_list))
     return trk_df
 
+
+
 # Given an artist id, return the id of all albums as a list
 def artist_albumlist(artist_id):
     # Set credentials
@@ -158,6 +170,8 @@ def artist_albumlist(artist_id):
             results.extend([x['id'] for x in art['items']])
     return results
 
+
+
 # Given an album id, return the id of all tracks as a list
 def album_tracklist(album_id):
     # Set credentials and get info from API
@@ -170,6 +184,8 @@ def album_tracklist(album_id):
         alb = sp.next(alb)
         results.extend([x['id'] for x in alb['items']])
     return results
+
+
 
 # Given an artist id, return the id of all tracks as a list
 def artist_tracklist(artist_id):
@@ -204,6 +220,8 @@ def artist_tracklist(artist_id):
             tracklist.extend([x['id'] for x in alb['items']])
     return tracklist
 
+
+
 # Given an artist id, return the id of all 20 related artists in a list
 def related_artists(artist_id):
     # Set credentials and return related artists
@@ -211,6 +229,8 @@ def related_artists(artist_id):
     arts = sp.artist_related_artists(artist_id)
     related = [x['id'] for x in arts['artists']]
     return related
+
+
 
 # Find artist or album name & id from a search query
 def search_spotify(query, fieldtype='artist'):
@@ -220,3 +240,39 @@ def search_spotify(query, fieldtype='artist'):
     
     # Return the name and id results as a tuple
     return [(x['name'],x['id']) for x in results[fieldtype+'s']['items']]
+
+
+
+# Get a list of similar tracks based on a seed artist and their similar artists distributed across popularity scores
+def track_recs(artist_id, degrees=0, pop_list=range(5,100,15)):
+    # Check if the input is an individual string and not a list
+    if isinstance(artist_id,str):
+        artist_id = [artist_id]
+    
+    # Set credentials
+    sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
+    
+    # Generate the list of artists to iterate over
+    unchecked = artist_id
+    checked = []
+    artist_list = []
+    while degrees > 0:
+        for art in unchecked:
+            related_artists = sp.artist_related_artists(art)
+            related_ids = [x['id'] for x in related_artists['artists']]
+            checked.append(art)
+            artist_list.extend(related_ids)
+        unchecked = list(set(artist_list).difference(checked))
+        degrees -= 1
+    artist_list = list(set(checked).union(unchecked))
+    
+    # Generate a list of similar tracks for each artist, balanced by popularity score
+    tracklist = []
+    for art in artist_list:
+        for pop in pop_list:
+            recs = sp.recommendations(seed_artists=[art], limit=100, target_popularity=pop)
+            tracklist.extend([x['id'] for x in recs['tracks']])
+
+    # Remove duplicate tracks and return the list
+    tracklist = list(set(tracklist))
+    return tracklist
