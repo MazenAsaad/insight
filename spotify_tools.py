@@ -17,6 +17,13 @@ def df_listcell(input_list):
 
 
 
+# Yield successive n-sized chunks from a list
+def chunks(inputlist, n):
+    for i in range(0, len(inputlist), n):
+        yield inputlist[i:i + n]
+
+
+
 # Given a playlist id, put relevant info into a dataframe
 def playlist_df(playlist_id):
     # Set credentials and get playlist
@@ -145,6 +152,56 @@ def track_df(track_id_list):
                          'Track_Valence':trk_feat['valence'],
                          'Track_Tempo':trk_feat['tempo']}
         trk_feat_df_list.append(trk_feat_dict)    
+
+    # Put it into a dataframe
+    trk_df = pd.DataFrame(trk_df_list).join(pd.DataFrame(trk_feat_df_list))
+    return trk_df
+
+
+
+# Given a list of track ids (unlimited), put relevant info into a dataframe (including audio features)
+def track_df_unlimited(track_id_list):
+    # Check if the input is an individual string and not a list
+    if isinstance(track_id_list,str):
+        track_id_list = [track_id_list]
+        
+    # Set credentials
+    sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
+    trk_df_list = []
+    trk_feat_df_list = []
+    
+    # Break the list into chunks of 50 and iterate over them
+    chunked = list(chunks(track_id_list,50))
+    for chunk in chunked:
+        trks = sp.tracks(chunk)
+        trks_feat = sp.audio_features(chunk)
+
+        # Pull out the relevant track information    
+        for trk in trks['tracks']:
+            trk_dict = {'Track_Name':trk['name'],
+                        'Track_ID':trk['id'],
+                        'Track_Artists':df_listcell([x['id'] for x in trk['artists']]),
+                        'Track_Album':trk['album']['id'],
+                        'Track_Popularity':trk['popularity'],
+                        'Track_Explicitness':int(trk['explicit'] == True),
+                        'Track_Duration':trk['duration_ms']}
+            trk_df_list.append(trk_dict)
+
+        # Pull out the relevant track feature information
+        for trk_feat in trks_feat:
+            trk_feat_dict = {'Track_Key':trk_feat['key'],
+                             'Track_Mode':trk_feat['mode'],
+                             'Track_TimeSig':trk_feat['time_signature'],
+                             'Track_Acousticness':trk_feat['acousticness'],
+                             'Track_Danceability':trk_feat['danceability'],
+                             'Track_Energy':trk_feat['energy'],
+                             'Track_Instrumentalness':trk_feat['instrumentalness'],
+                             'Track_Liveness':trk_feat['liveness'],
+                             'Track_Loudness':trk_feat['loudness'],
+                             'Track_Speechiness':trk_feat['speechiness'],
+                             'Track_Valence':trk_feat['valence'],
+                             'Track_Tempo':trk_feat['tempo']}
+            trk_feat_df_list.append(trk_feat_dict)    
 
     # Put it into a dataframe
     trk_df = pd.DataFrame(trk_df_list).join(pd.DataFrame(trk_feat_df_list))
