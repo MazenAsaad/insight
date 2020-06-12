@@ -271,10 +271,10 @@ def artist_tracklist(artist_id):
         alb = sp.album_tracks(album, limit=50)
         
         # Put data into a list and go through pagination
-        tracklist.extend([x['id'] for x in alb['items']])
+        tracklist.extend([(x['name'],x['id']) for x in alb['items']])
         while alb['next']:
             alb = sp.next(alb)
-            tracklist.extend([x['id'] for x in alb['items']])
+            tracklist.extend([(x['name'],x['id']) for x in alb['items']])
     return tracklist
 
 
@@ -284,7 +284,7 @@ def related_artists(artist_id):
     # Set credentials and return related artists
     sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
     arts = sp.artist_related_artists(artist_id)
-    related = [x['id'] for x in arts['artists']]
+    related = [(x['name'],x['id']) for x in arts['artists']]
     return related
 
 
