@@ -296,7 +296,7 @@ def search_spotify(query, fieldtype='artist'):
     results = sp.search(q=query, type=fieldtype)
     
     # Return the name and id results as a tuple
-    return [(x['name'],x['id']) for x in results[fieldtype+'s']['items']]
+    return [(x['name'],x['id'],x['images']) for x in results[fieldtype+'s']['items']]
 
 
 
