@@ -220,7 +220,7 @@ def track_df_unlimited(track_id_list):
     # Put it into a dataframe
     trk_df = pd.DataFrame(trk_df_list).join(pd.DataFrame(trk_feat_df_list))
     # Drop rows without audio feature data
-    trk_df = trk_df[trk_df['Track_Key'].notna()].reset_index()
+    trk_df = trk_df[trk_df['Track_Key'].notna()].reset_index(drop=True)
     return trk_df
 
 
