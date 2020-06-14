@@ -20,7 +20,18 @@ def df_listcell(input_list):
 # Yield successive n-sized chunks from a list
 def chunks(inputlist, n):
     for i in range(0, len(inputlist), n):
-        yield inputlist[i:i + n]
+        yield inputlist[i:i+n]
+
+
+
+# Find artist or album name & id from a search query
+def search_spotify(query, fieldtype='artist'):
+    # Set credentials and run the query
+    sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
+    results = sp.search(q=query, type=fieldtype)
+    
+    # Return the name and id results as a tuple
+    return [(x['name'],x['id'],x['images']) for x in results[fieldtype+'s']['items']]
 
 
 
@@ -49,22 +60,23 @@ def playlist_df(playlist_id):
 
 
 
-# Given a list of artist ids (limit 50), put relevant info into a dataframe
+# Given a list of artist ids, put relevant info into a dataframe
 def artist_df(artist_id_list):
     # Check if the input is an individual string and not a list
     if isinstance(artist_id_list,str):
         artist_id_list = [artist_id_list]
-    # Check the input list length
-    if len(artist_id_list) > 50:
-        raise ValueError('Input list must not exceed 50 artists')
         
-    # Set credentials and get artists
+    # Set credentials
     sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
-    arts = sp.artists(artist_id_list)
-    
-    # Pull out the relevant artist information
     art_df_list = []
-    for art in arts['artists']:
+
+    # Break the list into chunks of 50 and iterate over them
+    chunked = list(chunks(artist_id_list,50))
+    for chunk in chunked:
+        arts = sp.artists(chunk)
+
+        # Pull out the relevant artist information
+        for art in arts['artists']:
         art_dict = {'Artist_Name':art['name'],
                     'Artist_ID':art['id'],
                     'Artist_Genres':df_listcell(art['genres']),
@@ -78,31 +90,32 @@ def artist_df(artist_id_list):
 
 
 
-# Given a list of album ids (limit 20), put relevant info into a dataframe
+# Given a list of album ids, put relevant info into a dataframe
 def album_df(album_id_list):
     # Check if the input is an individual string and not a list
     if isinstance(album_id_list,str):
         album_id_list = [album_id_list]
-    # Check the input list length
-    if len(album_id_list) > 20:
-        raise ValueError('Input list must not exceed 20 albums')
     
-    # Set credentials and get albums
+    # Set credentials
     sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
-    albs = sp.albums(album_id_list)
-    
-    # Pull out the relevant album information
     alb_df_list = []
-    for alb in albs['albums']:
-        alb_dict = {'Album_Name':alb['name'],
-                    'Album_ID':alb['id'],
-                    'Album_Type':alb['album_type'],
-                    'Album_Artists':df_listcell([x['id'] for x in alb['artists']]),
-                    'Album_Genres':df_listcell(alb['genres']),
-                    'Album_Popularity':alb['popularity'],
-                    'Album_Label':alb['label'],
-                    'Album_Release_Date':alb['release_date']}
-        alb_df_list.append(alb_dict)
+
+    # Break the list into chunks of 20 and iterate over them
+    chunked = list(chunks(track_id_list,20))
+    for chunk in chunked:
+        albs = sp.albums(chunk)
+    
+        # Pull out the relevant album information
+        for alb in albs['albums']:
+            alb_dict = {'Album_Name':alb['name'],
+                        'Album_ID':alb['id'],
+                        'Album_Type':alb['album_type'],
+                        'Album_Artists':df_listcell([x['id'] for x in alb['artists']]),
+                        'Album_Genres':df_listcell(alb['genres']),
+                        'Album_Popularity':alb['popularity'],
+                        'Album_Label':alb['label'],
+                        'Album_Release_Date':alb['release_date']}
+            alb_df_list.append(alb_dict)
     
     # Put it into a dataframe
     alb_df = pd.DataFrame(alb_df_list)
@@ -110,57 +123,8 @@ def album_df(album_id_list):
 
 
 
-# Given a list of track ids (limit 50), put relevant info into a dataframe (including audio features)
+# Given a list of track ids, put relevant info into a dataframe (including audio features)
 def track_df(track_id_list):
-    # Check if the input is an individual string and not a list
-    if isinstance(track_id_list,str):
-        track_id_list = [track_id_list]
-    # Check the input list length
-    if len(track_id_list) > 50:
-        raise ValueError('Input list must not exceed 50 tracks')
-        
-    # Set credentials and get tracks
-    sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
-    trks = sp.tracks(track_id_list)
-    trks_feat = sp.audio_features(track_id_list)
-
-    # Pull out the relevant track information    
-    trk_df_list = []
-    for trk in trks['tracks']:
-        trk_dict = {'Track_Name':trk['name'],
-                    'Track_ID':trk['id'],
-                    'Track_Artists':df_listcell([x['id'] for x in trk['artists']]),
-                    'Track_Album':trk['album']['id'],
-                    'Track_Popularity':trk['popularity'],
-                    'Track_Explicitness':int(trk['explicit'] == True),
-                    'Track_Duration':trk['duration_ms']}
-        trk_df_list.append(trk_dict)
-    
-    # Pull out the relevant track feature information
-    trk_feat_df_list = []
-    for trk_feat in trks_feat:
-        trk_feat_dict = {'Track_Key':trk_feat['key'],
-                         'Track_Mode':trk_feat['mode'],
-                         'Track_TimeSig':trk_feat['time_signature'],
-                         'Track_Acousticness':trk_feat['acousticness'],
-                         'Track_Danceability':trk_feat['danceability'],
-                         'Track_Energy':trk_feat['energy'],
-                         'Track_Instrumentalness':trk_feat['instrumentalness'],
-                         'Track_Liveness':trk_feat['liveness'],
-                         'Track_Loudness':trk_feat['loudness'],
-                         'Track_Speechiness':trk_feat['speechiness'],
-                         'Track_Valence':trk_feat['valence'],
-                         'Track_Tempo':trk_feat['tempo']}
-        trk_feat_df_list.append(trk_feat_dict)    
-
-    # Put it into a dataframe
-    trk_df = pd.DataFrame(trk_df_list).join(pd.DataFrame(trk_feat_df_list))
-    return trk_df
-
-
-
-# Given a list of track ids (unlimited), put relevant info into a dataframe (including audio features)
-def track_df_unlimited(track_id_list):
     # Check if the input is an individual string and not a list
     if isinstance(track_id_list,str):
         track_id_list = [track_id_list]
@@ -234,13 +198,13 @@ def artist_albumlist(artist_id):
     alb_types = ['album','single','compilation'] # exclude 'appears_on'
     results = []
     for typ in alb_types:
-        art = sp.artist_albums(artist_id, album_type=typ, limit=50)
+        art_alb = sp.artist_albums(artist_id, album_type=typ, limit=50)
     
         # Put data into a list and go through pagination
-        results.extend([x['id'] for x in art['items']])
-        while art['next']:
-            art = sp.next(art)
-            results.extend([x['id'] for x in art['items']])
+        results.extend([(x['name'],x['id']) for x in art_alb['items']])
+        while art_alb['next']:
+            art_alb = sp.next(art_alb)
+            results.extend([(x['name'],x['id']) for x in art_alb['items']])
     return results
 
 
@@ -249,13 +213,13 @@ def artist_albumlist(artist_id):
 def album_tracklist(album_id):
     # Set credentials and get info from API
     sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
-    alb = sp.album_tracks(album_id, limit=50)
+    alb_trk = sp.album_tracks(album_id, limit=50)
     
     # Put data into a list and go through pagination
-    results = [x['id'] for x in alb['items']]
-    while alb['next']:
-        alb = sp.next(alb)
-        results.extend([x['id'] for x in alb['items']])
+    results = [(x['name'],x['id']) for x in alb_trk['items']]
+    while alb_trk['next']:
+        alb_trk = sp.next(alb_trk)
+        results.extend([(x['name'],x['id']) for x in alb_trk['items']])
     return results
 
 
@@ -272,47 +236,53 @@ def artist_tracklist(artist_id):
     alb_types = ['album','single','compilation'] # exclude 'appears_on'
     albumlist = []
     for typ in alb_types:
-        art = sp.artist_albums(artist_id, album_type=typ, limit=50)
+        art_alb = sp.artist_albums(artist_id, album_type=typ, limit=50)
     
         # Put data into a list and go through pagination
-        albumlist.extend([x['id'] for x in art['items']])
-        while art['next']:
-            art = sp.next(art)
-            albumlist.extend([x['id'] for x in art['items']])    
+        albumlist.extend([x['id'] for x in art_alb['items']])
+        while art_alb['next']:
+            art_alb = sp.next(art_alb)
+            albumlist.extend([x['id'] for x in art_alb['items']])    
     
     # Pull the tracks for each album one-by-one
     tracklist = []
     for album in albumlist:
         # Get album tracks from API
-        alb = sp.album_tracks(album, limit=50)
+        alb_trk = sp.album_tracks(album, limit=50)
         
         # Put data into a list and go through pagination
-        tracklist.extend([(x['name'],x['id']) for x in alb['items']])
-        while alb['next']:
-            alb = sp.next(alb)
-            tracklist.extend([(x['name'],x['id']) for x in alb['items']])
+        tracklist.extend([(x['name'],x['id']) for x in alb_trk['items']])
+        while alb_trk['next']:
+            alb_trk = sp.next(alb_trk)
+            tracklist.extend([(x['name'],x['id']) for x in alb_trk['items']])
     return tracklist
 
 
 
-# Given an artist id, return the id of all 20 related artists in a list
-def related_artists(artist_id):
-    # Set credentials and return related artists
+# Given an artist id, return the id of all 20 related artists in a list, and their related artists in turn
+def related_artists_network(artist_id, degrees=0):   
+    # Set credentials
     sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
-    arts = sp.artist_related_artists(artist_id)
-    related = [(x['name'],x['id']) for x in arts['artists']]
-    return related
-
-
-
-# Find artist or album name & id from a search query
-def search_spotify(query, fieldtype='artist'):
-    # Set credentials and run the query
-    sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
-    results = sp.search(q=query, type=fieldtype)
     
-    # Return the name and id results as a tuple
-    return [(x['name'],x['id'],x['images']) for x in results[fieldtype+'s']['items']]
+    # Iterate over the artists for the number of degrees set (without retreading duplicates)
+    unchecked = [artist_id]
+    checked = []
+    artist_list = []
+    while degrees > 0:
+        for art in unchecked:
+            related_artists = sp.artist_related_artists(art)
+            related_ids = [x['id'] for x in related_artists['artists']]
+            checked.append(art)
+            artist_list.extend(related_ids)
+        unchecked = list(set(artist_list).difference(checked))
+        degrees -= 1
+    artist_list = list(set(checked).union(unchecked))
+    return artist_list
+
+
+
+
+
 
 
 
