@@ -189,22 +189,38 @@ def track_df_unlimited(track_id_list):
 
         # Pull out the relevant track feature information
         for trk_feat in trks_feat:
-            trk_feat_dict = {'Track_Key':trk_feat['key'],
-                             'Track_Mode':trk_feat['mode'],
-                             'Track_TimeSig':trk_feat['time_signature'],
-                             'Track_Acousticness':trk_feat['acousticness'],
-                             'Track_Danceability':trk_feat['danceability'],
-                             'Track_Energy':trk_feat['energy'],
-                             'Track_Instrumentalness':trk_feat['instrumentalness'],
-                             'Track_Liveness':trk_feat['liveness'],
-                             'Track_Loudness':trk_feat['loudness'],
-                             'Track_Speechiness':trk_feat['speechiness'],
-                             'Track_Valence':trk_feat['valence'],
-                             'Track_Tempo':trk_feat['tempo']}
-            trk_feat_df_list.append(trk_feat_dict)    
+            if trk_feat is None:
+                trk_feat_dict = {'Track_Key':None,
+                                 'Track_Mode':None,
+                                 'Track_TimeSig':None,
+                                 'Track_Acousticness':None,
+                                 'Track_Danceability':None,
+                                 'Track_Energy':None,
+                                 'Track_Instrumentalness':None,
+                                 'Track_Liveness':None,
+                                 'Track_Loudness':None,
+                                 'Track_Speechiness':None,
+                                 'Track_Valence':None,
+                                 'Track_Tempo':None}
+            else:
+                trk_feat_dict = {'Track_Key':trk_feat['key'],
+                                 'Track_Mode':trk_feat['mode'],
+                                 'Track_TimeSig':trk_feat['time_signature'],
+                                 'Track_Acousticness':trk_feat['acousticness'],
+                                 'Track_Danceability':trk_feat['danceability'],
+                                 'Track_Energy':trk_feat['energy'],
+                                 'Track_Instrumentalness':trk_feat['instrumentalness'],
+                                 'Track_Liveness':trk_feat['liveness'],
+                                 'Track_Loudness':trk_feat['loudness'],
+                                 'Track_Speechiness':trk_feat['speechiness'],
+                                 'Track_Valence':trk_feat['valence'],
+                                 'Track_Tempo':trk_feat['tempo']}
+            trk_feat_df_list.append(trk_feat_dict)
 
     # Put it into a dataframe
     trk_df = pd.DataFrame(trk_df_list).join(pd.DataFrame(trk_feat_df_list))
+    # Drop rows without audio feature data
+    trk_df = trk_df[trk_df['Track_Key'].notna()].reset_index()
     return trk_df
 
 
