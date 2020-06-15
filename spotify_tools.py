@@ -279,7 +279,7 @@ def related_artists_network(artist_id, degrees=0):
 
 
 # Get a list of similar tracks based on a seed list o artists, distributed across popularity scores
-def recommended_tracks(artist_id_list, pop_list=range(5,100,15)):
+def recommended_tracks(artist_id_list, pop_list=range(5,100,30)):
     # Check if the input is an individual string and not a list
     if isinstance(artist_id_list,str):
         artist_id_list = [artist_id_list]
