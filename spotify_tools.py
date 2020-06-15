@@ -281,37 +281,18 @@ def related_artists_network(artist_id, degrees=0):
 
 
 
-
-
-
-
-
 # Get a list of similar tracks based on a seed artist and their similar artists distributed across popularity scores
-def track_recs(artist_id, degrees=0, pop_list=range(5,100,15)):
+def recommended_tracks(artist_id_list, pop_list=range(5,100,15)):
     # Check if the input is an individual string and not a list
-    if isinstance(artist_id,str):
-        artist_id = [artist_id]
+    if isinstance(artist_id_list,str):
+        artist_id_list = [artist_id_list]
     
     # Set credentials
     sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
     
-    # Generate the list of artists to iterate over
-    unchecked = artist_id
-    checked = []
-    artist_list = []
-    while degrees > 0:
-        for art in unchecked:
-            related_artists = sp.artist_related_artists(art)
-            related_ids = [x['id'] for x in related_artists['artists']]
-            checked.append(art)
-            artist_list.extend(related_ids)
-        unchecked = list(set(artist_list).difference(checked))
-        degrees -= 1
-    artist_list = list(set(checked).union(unchecked))
-    
     # Generate a list of similar tracks for each artist, balanced by popularity score
     tracklist = []
-    for art in artist_list:
+    for art in artist_id_list:
         for pop in pop_list:
             recs = sp.recommendations(seed_artists=[art], limit=100, target_popularity=pop)
             tracklist.extend([x['id'] for x in recs['tracks']])
