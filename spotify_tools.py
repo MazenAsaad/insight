@@ -195,9 +195,9 @@ def artist_albumlist(artist_id):
     sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
     
     # Loop through album types and get info from API
-    alb_types = ['album','single','compilation'] # exclude 'appears_on'
+    album_types = ['album','single','compilation'] # exclude 'appears_on'
     results = []
-    for typ in alb_types:
+    for typ in album_types:
         art_alb = sp.artist_albums(artist_id, album_type=typ, limit=50)
     
         # Put data into a list and go through pagination
@@ -226,16 +226,13 @@ def album_tracklist(album_id):
 
 # Given an artist id, return the id of all tracks as a list
 def artist_tracklist(artist_id):
-    # NB: It's much faster to only call spotipy.Spotify() once
-    # rather than chaining artist_albumlist() & album_tracklist()
-    
     # Set credentials
     sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
 
     # Loop through album types and get artist's albums from API
-    alb_types = ['album','single','compilation'] # exclude 'appears_on'
+    album_types = ['album','single','compilation'] # exclude 'appears_on'
     albumlist = []
-    for typ in alb_types:
+    for typ in album_types:
         art_alb = sp.artist_albums(artist_id, album_type=typ, limit=50)
     
         # Put data into a list and go through pagination
@@ -281,7 +278,7 @@ def related_artists_network(artist_id, degrees=0):
 
 
 
-# Get a list of similar tracks based on a seed artist and their similar artists distributed across popularity scores
+# Get a list of similar tracks based on a seed list o artists, distributed across popularity scores
 def recommended_tracks(artist_id_list, pop_list=range(5,100,15)):
     # Check if the input is an individual string and not a list
     if isinstance(artist_id_list,str):
@@ -300,3 +297,53 @@ def recommended_tracks(artist_id_list, pop_list=range(5,100,15)):
     # Remove duplicate tracks and return the list
     tracklist = list(set(tracklist))
     return tracklist
+
+
+
+# Get a list of collaborators for an artist id, based on who that artist has worked with in the past
+def get_collabs(artist_id):
+    # Set credentials
+    sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
+
+    # Loop through album types and get artist's albums from API
+    album_types = ['album','single','compilation','appears_on']
+    albumlist = []
+    for typ in album_types:
+        art_alb = sp.artist_albums(artist_id, album_type=typ, limit=50)
+    
+        # Put data into a list and go through pagination
+        albumlist.extend([x['id'] for x in art_alb['items']])
+        while art_alb['next']:
+            art_alb = sp.next(art_alb)
+            albumlist.extend([x['id'] for x in art_alb['items']])
+    
+    # Pull the tracks for each album one-by-one
+    tracklist = []
+    for album in albumlist:
+        # Get album tracks from API
+        alb_trk = sp.album_tracks(album, limit=50)
+        
+        # Put data into a list and go through pagination
+        tracklist.extend([(x['name'],x['id'],x['artists']) for x in alb_trk['items']])
+        while alb_trk['next']:
+            alb_trk = sp.next(alb_trk)
+            tracklist.extend([(x['name'],x['id'],x['artists']) for x in alb_trk['items']])
+            
+    # Extract the artist id's from the tracklist
+    collab_list = []
+    collab_list_filt = []
+    for trk in tracklist:
+        arts = trk[2]
+        art_ids = [x['id'] for x in arts]
+        collab_list.extend(art_ids)
+        # Filter out songs not containing the original searched artist
+        if artist_id in art_ids:
+            collab_list_filt.extend(art_ids)
+            
+    # Drop the duplicates   
+    collab_list = list(set(collab_list))
+    collab_list_filt = list(set(collab_list_filt))
+    # Remove the original artist id
+    collab_list.remove(artist_id)
+    collab_list_filt.remove(artist_id)
+    return (collab_list,collab_list_filt)
