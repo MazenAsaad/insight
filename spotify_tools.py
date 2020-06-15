@@ -77,12 +77,12 @@ def artist_df(artist_id_list):
 
         # Pull out the relevant artist information
         for art in arts['artists']:
-        art_dict = {'Artist_Name':art['name'],
-                    'Artist_ID':art['id'],
-                    'Artist_Genres':df_listcell(art['genres']),
-                    'Artist_Followers':art['followers']['total'],
-                    'Artist_Popularity':art['popularity']}
-        art_df_list.append(art_dict)
+            art_dict = {'Artist_Name':art['name'],
+                        'Artist_ID':art['id'],
+                        'Artist_Genres':df_listcell(art['genres']),
+                        'Artist_Followers':art['followers']['total'],
+                        'Artist_Popularity':art['popularity']}
+            art_df_list.append(art_dict)
     
     # Put it into a dataframe
     art_df = pd.DataFrame(art_df_list)
@@ -101,7 +101,7 @@ def album_df(album_id_list):
     alb_df_list = []
 
     # Break the list into chunks of 20 and iterate over them
-    chunked = list(chunks(track_id_list,20))
+    chunked = list(chunks(album_id_list,20))
     for chunk in chunked:
         albs = sp.albums(chunk)
     
