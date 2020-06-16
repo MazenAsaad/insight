@@ -33,9 +33,10 @@ if search_box:
 # Run the analyses & display the results
 if input_artist:
 	st.subheader('Recommended Collaborations:')
-	related = related_artists(input_artist)
-	related_names = [x[0] for x in related]
-	if related_names:
+	related = related_artists_network(input_artist, 2)
+	if related:
+		related_df = artist_df(related)
+		related_names = related_df['Artist_Name']
 		st.dataframe(related_names)
 	else:
 		st.markdown(':crying_cat_face: ***None found (artist library likely too small)*** :crying_cat_face:')
