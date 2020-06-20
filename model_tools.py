@@ -1,4 +1,6 @@
 # Import libraries and functions
+import os
+import pickle
 import numpy as np
 import pandas as pd
 from spotify_tools import *
@@ -39,3 +41,23 @@ def seed_data(artist_id, degrees=2):
     # Get the full dataframe for each track id in the recommendation list
     df = track_df(recs_filt)
     return (artist_id,net,seed_list,recs,recs_filt,df)
+
+
+
+def save_random_artist_data(start_idx=0, end_idx=10):
+    # Load the random_artists list, or create it if it doesn't exist
+    if os.path.exists('Data/random_artists.pkl'):
+        with open('Data/random_artists.pkl', 'rb') as f:
+            random_artists = pickle.load(f)
+    else:
+        random_artists = get_random_artists()
+        with open('Data/random_artists.pkl', 'wb') as f:
+            pickle.dump(random_artists, f)
+
+    # Get the seed_data for each artist and save it
+    for n, artist in enumerate(random_artists[start_idx:end_idx]):
+        save_name = 'data_artist_{}.pkl'.format(n)
+        save_path = 'Data/{}'.format(save_name)
+        save_data = seed_data(artist[1])
+        with open(save_path, 'wb') as f:
+            pickle.dump([save_name,artist,save_data], f)
