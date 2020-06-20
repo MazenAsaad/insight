@@ -44,7 +44,7 @@ def seed_data(artist_id, degrees=2):
 
 
 
-def save_random_artist_data(start_idx=0, end_idx=10):
+def save_random_artist_data(start_idx=0, end_idx=3):
     # Load the random_artists list, or create it if it doesn't exist
     if os.path.exists('Data/random_artists.pkl'):
         with open('Data/random_artists.pkl', 'rb') as f:
