@@ -36,7 +36,7 @@ def search_spotify(query, fieldtype='artist'):
 
 
 # Generate a list of random artists
-def gen_random_artists():
+def get_random_artists():
     # Set credentials
     sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
 
