@@ -35,6 +35,20 @@ def search_spotify(query, fieldtype='artist'):
 
 
 
+# Generate a list of random artists
+def gen_random_artists():
+    # Set credentials
+    sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
+
+    # Pull 2000 artsits randomly from spotify's catalog
+    random_artists = []
+    for i in range(0,2000,50):
+        results = sp.search(q='year:0000-9999', limit=50, offset=i, type='artist')
+        random_artists.extend([(x['name'],x['id'],x['followers']['total']) for x in results['artists']['items']])
+    return random_artists
+
+
+
 # Given a playlist id, put relevant info into a dataframe
 def playlist_df(playlist_id):
     # Set credentials and get playlist
