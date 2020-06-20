@@ -43,9 +43,9 @@ def seed_data(artist_id, degrees=2):
     return (artist_id,net,seed_list,recs,recs_filt,df)
 
 
-
+# Go through the random_artists seed list and generate/save the data needed for modeling tests
 def save_random_artist_data(start_idx=0, end_idx=3):
-    # Load the random_artists list, or create it if it doesn't exist
+    # Load the random_artists list, or create & save it if it doesn't exist
     if os.path.exists('Data/random_artists.pkl'):
         with open('Data/random_artists.pkl', 'rb') as f:
             random_artists = pickle.load(f)
@@ -56,8 +56,14 @@ def save_random_artist_data(start_idx=0, end_idx=3):
 
     # Get the seed_data for each artist and save it
     for n, artist in enumerate(random_artists[start_idx:end_idx]):
-        save_name = 'data_artist_{}.pkl'.format(n)
+        save_name = 'data_artist_{}.pkl'.format(n+start_idx)
         save_path = 'Data/{}'.format(save_name)
+
+        # Skip this file if it already exists
+        if os.path.exists(save_path):
+        	continue
+
+        # Create and save the data
         save_data = seed_data(artist[1])
         with open(save_path, 'wb') as f:
             pickle.dump([save_name,artist,save_data], f)
