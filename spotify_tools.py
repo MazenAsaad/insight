@@ -301,12 +301,16 @@ def recommended_tracks(artist_id_list, pop_list=range(5,100,30)):
     # Set credentials
     sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
     
-    # Generate a list of similar tracks for each artist, balanced by popularity score
+    # Generate a list of similar tracks for each artist, balanced by popularity score (if applicable)
     tracklist = []
     for art in artist_id_list:
-        for pop in pop_list:
-            recs = sp.recommendations(seed_artists=[art], limit=100, target_popularity=pop)
-            tracklist.extend([x['id'] for x in recs['tracks']])
+        if pop_list:
+            for pop in pop_list:
+                recs = sp.recommendations(seed_artists=[art], limit=100, target_popularity=pop)
+                tracklist.extend([x['id'] for x in recs['tracks']])
+        else:
+            recs = sp.recommendations(seed_artists=[art], limit=100)
+            tracklist.extend([x['id'] for x in recs['tracks']])            
 
     # Remove duplicate tracks and return the list
     tracklist = list(set(tracklist))
