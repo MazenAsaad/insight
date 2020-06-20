@@ -45,6 +45,9 @@ def gen_random_artists():
     for i in range(0,2000,50):
         results = sp.search(q='year:0000-9999', limit=50, offset=i, type='artist')
         random_artists.extend([(x['name'],x['id'],x['followers']['total']) for x in results['artists']['items']])
+
+    # Remove duplicates
+    random_artists = list(set(random_artists))
     return random_artists
 
 
