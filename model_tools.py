@@ -20,3 +20,22 @@ def pop_classes(pop_vals, cutoffs=[75]):
         c = np.where(p >= np.percentile(p,pct),1,0)
         classes = classes + c
     return classes
+
+
+
+# Pull the relevant data for a seed artist
+def seed_data(artist_id, degrees=2):
+    # Get the network of related artists
+    net = related_artists_network(artist_id, degrees)
+    
+    # Get the seed artist's tracklist
+    seed_list = artist_tracklist(artist_id)
+    seed_list = [x[1] for x in seed_list]
+    
+    # Get the list of recommended tracks and remove any belonging to the seed artist
+    recs = recommended_tracks(net)
+    recs_filt = list(set(recs).difference(seed_list))
+    
+    # Get the full dataframe for each track id in the recommendation list
+    df = track_df(recs_filt)
+    return (artist_id,net,seed_list,recs,recs_filt,df)
