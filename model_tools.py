@@ -61,9 +61,11 @@ def save_random_artist_data(start_idx=0, end_idx=3):
 
         # Skip this file if it already exists
         if os.path.exists(save_path):
+        	print('Skipped: ', save_name)
         	continue
 
         # Create and save the data
         save_data = seed_data(artist[1])
         with open(save_path, 'wb') as f:
             pickle.dump([save_name,artist,save_data], f)
+        print('Saved: ', save_name)
