@@ -6,7 +6,7 @@ from spotify_tools import *
 
 
 # Turn popularity scores into classes based on percentile cutoffs
-def pop_classes(pop_vals, cutoffs=[80]):
+def pop_classes(pop_vals, cutoffs=[75]):
     # Check if the cutoffs is a single integer and not a list
     if isinstance(cutoffs,int):
         cutoffs = [cutoffs]
