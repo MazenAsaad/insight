@@ -47,12 +47,14 @@ def seed_data(artist_id, degrees=2):
 def save_random_artist_data(start_idx=0, end_idx=3):
     # Load the random_artists list, or create & save it if it doesn't exist
     if os.path.exists('Data/random_artists.pkl'):
+        print('Load: random_artists')
         with open('Data/random_artists.pkl', 'rb') as f:
             random_artists = pickle.load(f)
     else:
         random_artists = get_random_artists()
         with open('Data/random_artists.pkl', 'wb') as f:
             pickle.dump(random_artists, f)
+        print('Saved: random_artists')
 
     # Get the seed_data for each artist and save it
     for n, artist in enumerate(random_artists[start_idx:end_idx]):
