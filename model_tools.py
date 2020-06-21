@@ -39,7 +39,11 @@ def seed_data(artist_id, degrees=2):
     recs_filt = list(set(recs).difference(seed_list))
     
     # Get the full dataframe for each track id in the recommendation list
-    df = track_df(recs_filt)
+    # Handle error in case the artist is so small there weren't any recommended artists
+    if recs_filt:
+    	df = track_df(recs_filt)
+    else:
+    	df = None
     return (artist_id,net,seed_list,recs,recs_filt,df)
 
 
