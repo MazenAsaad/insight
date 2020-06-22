@@ -1,3 +1,8 @@
 spotify_credentials.py
-Testing/
+
+*.ipynb
+.ipynb_checkpoints/
 __pycache__/
+Testing/
+
+save_*.py
