@@ -9,11 +9,12 @@ os.environ["SPOTIPY_CLIENT_SECRET"] = client_secret
 
 
 
-# Helper function to store lists in dataframes
 def df_listcell(input_list):
-    x = pd.Series([],dtype='object')
-    x[0] = input_list
-    return x[0]
+    """Helper function to store lists in individual dataframe cells"""
+    # Create an empty series object and put the list in the first position
+    listcell = pd.Series([],dtype='object')
+    listcell[0] = input_list
+    return listcell[0]
 
 
 
