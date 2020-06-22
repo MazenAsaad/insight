@@ -51,5 +51,5 @@ if input_artist:
 	st.dataframe(tracks)
 
 	st.subheader('Key song features driving popularity:')
-	importance = [5,10,7,13,11,6,5,8,2,5,9,10,11,10]
+	importance = [5, 10, 7, 13, 11, 6, 5, 8, 2, 5, 9, 10, 11, 10]
 	st.bar_chart(importance)

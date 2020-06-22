@@ -7,30 +7,39 @@ from spotify_tools import *
 
 
 
-# Turn popularity scores into classes based on percentile cutoffs
 def pop_classes(pop_vals, cutoffs=[75]):
-    # Check if the cutoffs is a single integer and not a list
-    if isinstance(cutoffs,int):
+	"""Turn popularity scores into classes based on percentile cutoffs.
+
+	pop_vals - the list of popularity values
+	cutoffs - the list of percentile cutoffs to use
+	(will assign a separate class for each percentile in order)
+	"""
+    # Check if the cutoff is a single integer and not a list
+    if isinstance(cutoffs, int):
         cutoffs = [cutoffs]
     
     # Convert popularity values to a numpy array (for speed)
     p = np.array(pop_vals)
     
     # Set each percentile chunk to a different class (in ranked order)
-    classes = np.array([0]*len(p))
+    classes = np.array([0] * len(p))
     for pct in cutoffs:
-        c = np.where(p >= np.percentile(p,pct),1,0)
+        c = np.where(p >= np.percentile(p, pct), 1, 0)
         classes = classes + c
     return classes
 
 
 
-# Pull the relevant data for a seed artist
 def seed_data(artist_id, degrees=2):
+	"""Pull the relevant data for a seed artist.
+
+	artist_id - the Spotify ID of the seed artist
+	degrees - the number of degrees out in the related artists network to search
+	"""
     # Get the network of related artists
     net = related_artists_network(artist_id, degrees)
     
-    # Get the seed artist's tracklist
+    # Get the seed artist's tracklist id values
     seed_list = artist_tracklist(artist_id)
     seed_list = [x[1] for x in seed_list]
     
@@ -39,16 +48,17 @@ def seed_data(artist_id, degrees=2):
     recs_filt = list(set(recs).difference(seed_list))
     
     # Get the full dataframe for each track id in the recommendation list
-    # Handle error in case the artist is so small there weren't any recommended artists
     if recs_filt:
     	df = track_df(recs_filt)
     else:
+    	# Assign None in case the artist is so small there weren't any recommended artists
     	df = None
-    return (artist_id,net,seed_list,recs,recs_filt,df)
+    return (artist_id, net, seed_list, recs, recs_filt, df)
 
 
-# Go through the random_artists seed list and generate/save the data needed for modeling tests
+
 def save_random_artist_data(start_idx=0, end_idx=3):
+	"""Go through a slice of the random_artists seed list and generate/save the data needed for modeling tests."""
     # Load the random_artists list, or create & save it if it doesn't exist
     if os.path.exists('Data/random_artists.pkl'):
         print('Load: random_artists')
@@ -73,5 +83,5 @@ def save_random_artist_data(start_idx=0, end_idx=3):
         # Create and save the data
         save_data = seed_data(artist[1])
         with open(save_path, 'wb') as f:
-            pickle.dump([save_name,artist,save_data], f)
+            pickle.dump([save_name, artist, save_data], f)
         print('Saved: ', save_name)

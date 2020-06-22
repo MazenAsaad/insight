@@ -10,42 +10,42 @@ os.environ["SPOTIPY_CLIENT_SECRET"] = client_secret
 
 
 def df_listcell(input_list):
-    """Helper function to store lists in individual dataframe cells"""
+    """Helper function to store lists in individual dataframe cells."""
     # Create an empty series object and put the list in the first position
-    listcell = pd.Series([],dtype='object')
+    listcell = pd.Series([], dtype='object')
     listcell[0] = input_list
     return listcell[0]
 
 
 
-# Yield successive n-sized chunks from a list
-def chunks(inputlist, n):
-    for i in range(0, len(inputlist), n):
-        yield inputlist[i:i+n]
+def chunks(input_list, n):
+    """Yield successive n-sized chunks from a list to iterate past API endpoint limits."""
+    for i in range(0, len(input_list), n):
+        yield input_list[i:i+n]
 
 
 
-# Find artist or album name & id from a search query
-def search_spotify(query, fieldtype='artist'):
+def search_spotify(query):
+    """Find artist name, id, and image from a search query."""
     # Set credentials and run the query
     sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
-    results = sp.search(q=query, type=fieldtype)
+    results = sp.search(q=query, type='artist')
     
-    # Return the name and id results as a tuple
-    return [(x['name'],x['id'],x['images']) for x in results[fieldtype+'s']['items']]
+    # Return the results as a tuple
+    return [(x['name'], x['id'], x['images']) for x in results['artists']['items']]
 
 
 
-# Generate a list of random artists
 def get_random_artists():
+    """Generate a list of random artists."""
     # Set credentials
     sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
 
     # Pull 2000 artsits randomly from spotify's catalog
     random_artists = []
-    for i in range(0,2000,50):
+    for i in range(0, 2000, 50):
         results = sp.search(q='year:0000-9999', limit=50, offset=i, type='artist')
-        random_artists.extend([(x['name'],x['id'],x['followers']['total']) for x in results['artists']['items']])
+        random_artists.extend([(x['name'], x['id'], x['followers']['total']) for x in results['artists']['items']])
 
     # Remove duplicates
     random_artists = list(set(random_artists))
@@ -53,8 +53,8 @@ def get_random_artists():
 
 
 
-# Given a playlist id, put relevant info into a dataframe
 def playlist_df(playlist_id):
+    """Given a playlist id, put relevant info into a dataframe."""
     # Set credentials and get playlist
     sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
     pl = sp.playlist(playlist_id)
@@ -71,17 +71,17 @@ def playlist_df(playlist_id):
         for trk in track_obj['items']:
             track_id.append(trk['track']['id'])
     
-    # Put it into a dataframe
+    # Put results into a dataframe
     pl_df = pd.DataFrame({'Track_ID':track_id})
     pl_df['Track_Position'] = pl_df.index + 1
     return pl_df
 
 
 
-# Given a list of artist ids, put relevant info into a dataframe
 def artist_df(artist_id_list):
+    """Given a list of artist ids, put relevant info into a dataframe."""
     # Check if the input is an individual string and not a list
-    if isinstance(artist_id_list,str):
+    if isinstance(artist_id_list, str):
         artist_id_list = [artist_id_list]
         
     # Set credentials
@@ -89,7 +89,7 @@ def artist_df(artist_id_list):
     art_df_list = []
 
     # Break the list into chunks of 50 and iterate over them
-    chunked = list(chunks(artist_id_list,50))
+    chunked = list(chunks(artist_id_list, 50))
     for chunk in chunked:
         arts = sp.artists(chunk)
 
@@ -102,16 +102,16 @@ def artist_df(artist_id_list):
                         'Artist_Popularity':art['popularity']}
             art_df_list.append(art_dict)
     
-    # Put it into a dataframe
+    # Put results into a dataframe
     art_df = pd.DataFrame(art_df_list)
     return art_df
 
 
 
-# Given a list of album ids, put relevant info into a dataframe
 def album_df(album_id_list):
+    """Given a list of album ids, put relevant info into a dataframe."""
     # Check if the input is an individual string and not a list
-    if isinstance(album_id_list,str):
+    if isinstance(album_id_list, str):
         album_id_list = [album_id_list]
     
     # Set credentials
@@ -119,7 +119,7 @@ def album_df(album_id_list):
     alb_df_list = []
 
     # Break the list into chunks of 20 and iterate over them
-    chunked = list(chunks(album_id_list,20))
+    chunked = list(chunks(album_id_list, 20))
     for chunk in chunked:
         albs = sp.albums(chunk)
     
@@ -135,16 +135,16 @@ def album_df(album_id_list):
                         'Album_Release_Date':alb['release_date']}
             alb_df_list.append(alb_dict)
     
-    # Put it into a dataframe
+    # Put results into a dataframe
     alb_df = pd.DataFrame(alb_df_list)
     return alb_df
 
 
 
-# Given a list of track ids, put relevant info into a dataframe (including audio features)
 def track_df(track_id_list):
+    """Given a list of track ids, put relevant info into a dataframe (including audio features)."""
     # Check if the input is an individual string and not a list
-    if isinstance(track_id_list,str):
+    if isinstance(track_id_list, str):
         track_id_list = [track_id_list]
         
     # Set credentials
@@ -153,7 +153,7 @@ def track_df(track_id_list):
     trk_feat_df_list = []
     
     # Break the list into chunks of 50 and iterate over them
-    chunked = list(chunks(track_id_list,50))
+    chunked = list(chunks(track_id_list, 50))
     for chunk in chunked:
         trks = sp.tracks(chunk)
         trks_feat = sp.audio_features(chunk)
@@ -199,7 +199,7 @@ def track_df(track_id_list):
                                  'Track_Tempo':trk_feat['tempo']}
             trk_feat_df_list.append(trk_feat_dict)
 
-    # Put it into a dataframe
+    # Put results into a dataframe
     trk_df = pd.DataFrame(trk_df_list).join(pd.DataFrame(trk_feat_df_list))
     # Drop rows without audio feature data
     trk_df = trk_df[trk_df['Track_Key'].notna()].reset_index(drop=True)
@@ -207,48 +207,52 @@ def track_df(track_id_list):
 
 
 
-# Given an artist id, return the id of all albums as a list
 def artist_albumlist(artist_id):
+    """Given an artist id, return the id of all albums as a list."""
     # Set credentials
     sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
     
     # Loop through album types and get info from API
-    album_types = ['album','single','compilation'] # exclude 'appears_on'
+    album_types = ['album', 'single', 'compilation'] # exclude 'appears_on'
     results = []
     for typ in album_types:
         art_alb = sp.artist_albums(artist_id, album_type=typ, limit=50)
     
-        # Put data into a list and go through pagination
-        results.extend([(x['name'],x['id']) for x in art_alb['items']])
+        # Put album name and id into a list and go through pagination
+        results.extend([(x['name'], x['id']) for x in art_alb['items']])
         while art_alb['next']:
             art_alb = sp.next(art_alb)
-            results.extend([(x['name'],x['id']) for x in art_alb['items']])
+            results.extend([(x['name'], x['id']) for x in art_alb['items']])
     return results
 
 
 
-# Given an album id, return the id of all tracks as a list
 def album_tracklist(album_id):
+    """Given an album id, return the id of all tracks as a list."""
     # Set credentials and get info from API
     sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
     alb_trk = sp.album_tracks(album_id, limit=50)
     
-    # Put data into a list and go through pagination
-    results = [(x['name'],x['id']) for x in alb_trk['items']]
+    # Put results into a list and go through pagination
+    results = [(x['name'], x['id']) for x in alb_trk['items']]
     while alb_trk['next']:
         alb_trk = sp.next(alb_trk)
-        results.extend([(x['name'],x['id']) for x in alb_trk['items']])
+        results.extend([(x['name'], x['id']) for x in alb_trk['items']])
     return results
 
 
 
-# Given an artist id, return the id of all tracks as a list
 def artist_tracklist(artist_id):
+    """Given an artist id, return the id of all tracks as a list.
+
+    Calling artist_albumlist() followed by album_tracklist() would unnecessarily
+    reset the credentials over and over again, rather than just once here.
+    """
     # Set credentials
     sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
 
     # Loop through album types and get artist's albums from API
-    album_types = ['album','single','compilation'] # exclude 'appears_on'
+    album_types = ['album', 'single', 'compilation'] # exclude 'appears_on'
     albumlist = []
     for typ in album_types:
         art_alb = sp.artist_albums(artist_id, album_type=typ, limit=50)
@@ -265,24 +269,28 @@ def artist_tracklist(artist_id):
         # Get album tracks from API
         alb_trk = sp.album_tracks(album, limit=50)
         
-        # Put data into a list and go through pagination
-        tracklist.extend([(x['name'],x['id']) for x in alb_trk['items']])
+        # Put results into a list and go through pagination
+        tracklist.extend([(x['name'], x['id']) for x in alb_trk['items']])
         while alb_trk['next']:
             alb_trk = sp.next(alb_trk)
-            tracklist.extend([(x['name'],x['id']) for x in alb_trk['items']])
+            tracklist.extend([(x['name'], x['id']) for x in alb_trk['items']])
     return tracklist
 
 
 
-# Given an artist id, return the id of all 20 related artists in a list, and their related artists in turn
-def related_artists_network(artist_id, degrees=0):   
+def related_artists_network(artist_id, degrees=0):
+    """Given an artist id, return the id of all 20 related artists in a list, and their related artists in turn.
+
+    artist_id - the Spotify ID of the seed artist
+    degrees - the number of degrees out in the related artists network to search
+    """
     # Set credentials
     sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
     
     # Iterate over the artists for the number of degrees set (without retreading duplicates)
-    unchecked = [artist_id]
-    checked = []
-    artist_list = []
+    unchecked = [artist_id] # id values which haven't been checked yet
+    checked = [] # id values which have been checked
+    artist_list = [] # passes intermediate results around and stores the final result
     while degrees > 0:
         for art in unchecked:
             related_artists = sp.artist_related_artists(art)
@@ -296,10 +304,14 @@ def related_artists_network(artist_id, degrees=0):
 
 
 
-# Get a list of similar tracks based on a seed list o artists, distributed across popularity scores
 def recommended_tracks(artist_id_list, pop_list=range(5,100,30)):
+    """Get a list of similar tracks based on a seed list o artists, distributed across popularity scores.
+
+    artist_id_list - the list of artists with which to seed track recommendations
+    pop_list - the target popularity scores for getting track recommendations
+    """
     # Check if the input is an individual string and not a list
-    if isinstance(artist_id_list,str):
+    if isinstance(artist_id_list, str):
         artist_id_list = [artist_id_list]
     
     # Set credentials
@@ -322,13 +334,13 @@ def recommended_tracks(artist_id_list, pop_list=range(5,100,30)):
 
 
 
-# Get a list of collaborators for an artist id, based on who that artist has worked with in the past
 def get_collabs(artist_id):
+    """Get a list of collaborators for an artist id, based on who that artist has worked with in the past."""
     # Set credentials
     sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
 
     # Loop through album types and get artist's albums from API
-    album_types = ['album','single','compilation','appears_on']
+    album_types = ['album', 'single', 'compilation', 'appears_on']
     albumlist = []
     for typ in album_types:
         art_alb = sp.artist_albums(artist_id, album_type=typ, limit=50)
@@ -345,11 +357,11 @@ def get_collabs(artist_id):
         # Get album tracks from API
         alb_trk = sp.album_tracks(album, limit=50)
         
-        # Put data into a list and go through pagination
-        tracklist.extend([(x['name'],x['id'],x['artists']) for x in alb_trk['items']])
+        # Put results into a list and go through pagination
+        tracklist.extend([(x['name'], x['id'], x['artists']) for x in alb_trk['items']])
         while alb_trk['next']:
             alb_trk = sp.next(alb_trk)
-            tracklist.extend([(x['name'],x['id'],x['artists']) for x in alb_trk['items']])
+            tracklist.extend([(x['name'], x['id'], x['artists']) for x in alb_trk['items']])
             
     # Extract the artist id's from the tracklist
     collab_list = []
@@ -365,7 +377,7 @@ def get_collabs(artist_id):
     # Drop the duplicates   
     collab_list = list(set(collab_list))
     collab_list_filt = list(set(collab_list_filt))
-    # Remove the original artist id
+    # Remove the original artist id and return both lists
     collab_list.remove(artist_id)
     collab_list_filt.remove(artist_id)
-    return (collab_list,collab_list_filt)
+    return (collab_list, collab_list_filt)
