@@ -10,6 +10,7 @@ By Mazen Asaad, PhD
 2. [Approach](README.md#approach)
 3. [Requirements](README.md#requirements)
 4. [Repository Contents](README.md#repository-contents)
+5. [Installation](README.md#installation)
 
 # Introduction
 The goal of this project is to provide a machine learning model and analytic dashboard to enable aspiring musicians to determine which audio features of songs drive popularity within their market segment, as well as to identify which songs in their library are underperforming expectations and should be the focus of future promotional resources.
@@ -25,8 +26,8 @@ The following languages and packages were used in this project:
 * matplotlib 3.1.3
 * seaborn 0.10.1
 * scikit-learn 0.22.1
-* spotipy 2.12.0
-* streamlit 0.61.0
+* spotipy 2.12.0 (for interacting with the Spotify API)
+* streamlit 0.61.0 (for building a front-end dashboard)
 
 As this project leverages data from Spotify, a client id and client secret are required as provided by the Spotify developer API (https://developer.spotify.com/dashboard). These details should be stored in a file called `spotify_credentials.py` in the same directory as `spotify_tools.py`. It should only contain the values for these two variables, as such:
 ```
@@ -35,7 +36,10 @@ client_secret = 'YourClientSecretStringGoesHere'
 ```
 
 # Repository Contents
-* __Data/__ - Contains data pulled from the Spotify API used for model testing and validation at the time of this project's creation.
+* __Data/__ - Contains sample data pulled from the Spotify API used for model testing and validation at the time of this project's creation. Data pulled from the API at a future date may not exactly match results shown here.
 * __spotify_tools.py__ - Contains all of the relevant functions for pulling data from the Spotify API (via the spotipy package).
 * __model_tools.py__ - Contains all of the relevant functions for generating and testing the machine learning models.
 * __streamlit_layout.py__ - The main script for running the dashboard via Streamlit.
+
+# Installation
+(Installation instructions and examples to come...)
