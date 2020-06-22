@@ -1,9 +1,9 @@
 # Music Mastery
 ___Empowering Artists to Find Their Niche___
 
-By Mazen Asaad, PhD
-
 The project was completed as part of the Insight Data Science Fellowship program (Summer 2020, New York, NY).
+
+By Mazen Asaad, PhD
 
 # Table of Contents
 1. [Introduction](README.md#introduction)
