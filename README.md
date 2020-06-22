@@ -34,7 +34,7 @@ client_secret = 'YourClientSecretStringGoesHere'
 ```
 
 # Repository Contents
-* __Data__ - Contains data pulled from the Spotify API used for model testing and validation at the time of this project's creation.
+* __Data/__ - Contains data pulled from the Spotify API used for model testing and validation at the time of this project's creation.
 * __spotify_tools.py__ - Contains all of the relevant functions for pulling data from the Spotify API (via the spotipy package).
 * __model_tools.py__ - Contains all of the relevant functions for generating and testing the machine learning models.
 * __streamlit_layout.py__ - The main script for running the dashboard via Streamlit.
