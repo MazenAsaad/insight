@@ -5,6 +5,15 @@ import numpy as np
 import pandas as pd
 from spotify_tools import *
 
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.pipeline import Pipeline
+from sklearn.model_selection import train_test_split, cross_validate
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC
+from sklearn import metrics
+
 
 
 def pop_classes(pop_vals, cutoffs=[75]):
@@ -85,3 +94,104 @@ def save_random_artist_data(start_idx=0, end_idx=3):
 		with open(save_path, 'wb') as f:
 			pickle.dump([save_name, artist, save_data], f)
 		print('Saved: ', save_name)
+
+
+
+def split_df(input_df):
+	"""Generate the training and test splits from a dataframe, plus shuffled data for baseline."""
+    # Convert columns to relevant X and y features
+    all_features = input_df.drop(['Track_Name', 'Track_ID', 'Track_Artists', 'Track_Album'], axis=1)
+    X = all_features.drop(['Track_Popularity'], axis=1)
+    y_vals = all_features['Track_Popularity']
+    
+    # Convert popularity values to binary classes
+    y = pop_classes(y_vals)
+
+    # Split the data
+    X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y, test_size=0.15)
+    
+    # Create a randomly shuffled version of 'y' to act as a baseline comparison
+    y_train_shuffled = np.array(y_train)
+    y_test_shuffled = np.array(y_test)
+    np.random.shuffle(y_train_shuffled)
+    np.random.shuffle(y_test_shuffled)
+    
+    return (X_train, X_test, y_train, y_test, y_train_shuffled, y_test_shuffled)
+
+
+
+def RFC_list(n_est_list, max_depth_list):
+	"""Create a list of different Random Forest Classifier models to search through.
+
+	Note: GridSearchCV wasn't used because it doesn't return all estimators for comparing hold-out
+	validation scores, 9only the best performing one).
+	"""
+    models = []
+    for est in n_est_list:
+        for depth in max_depth_list:
+            models.append(RandomForestClassifier(class_weight='balanced_subsample',
+                                                 n_estimators=est,
+                                                 max_depth=depth,
+                                                 random_state=0))
+    return models
+
+
+
+def LR_list(penalty_list, c_list):
+	"""Create a list of different Logistic Regression models to search through.
+
+	Note: GridSearchCV wasn't used because it doesn't return all estimators for comparing hold-out
+	validation scores, 9only the best performing one).
+	"""
+    models = []
+    for pen in penalty_list:
+        for c_val in c_list:
+            models.append(LogisticRegression(class_weight='balanced',
+                                             penalty=pen,
+                                             C=c_val,
+                                             solver='saga',
+                                             random_state=0))
+    return models
+
+
+
+def SVC_list(c_list):
+	"""Create a list of different Support Vector Classifier models to search through.
+
+	Note: GridSearchCV wasn't used because it doesn't return all estimators for comparing hold-out
+	validation scores, 9only the best performing one).
+	"""
+    models = []
+    for c_val in c_list:
+        models.append(SVC(kernel='linear',
+                          class_weight='balanced',
+                          C=c_val,
+                          random_state=0))
+    return models
+
+
+
+def run_cv(input_model, X_train, y_train):
+    """Run the cross-validation on the input model."""
+    # Select the columns to be re-scaled and dropped
+    cols2scale = ['Track_Duration', 'Track_Loudness', 'Track_Tempo']
+    cols2drop = ['Track_Key', 'Track_TimeSig']
+    
+    # Set up the appropriate column transformer for preprocessing
+    ct = ColumnTransformer([('scaler', MinMaxScaler(), cols2scale),
+                            ('drop_cols', 'drop', cols2drop)],
+                           remainder='passthrough')
+    
+    # Set up the pipeline object
+    pipeline = Pipeline([('preprocess', ct),
+                         ('model', input_model)])
+    
+    # Run the cross-validation and return the results
+    cv_results = cross_validate(pipeline,
+                                X_train,
+                                y_train,
+                                scoring='recall',
+                                cv=5,
+                                return_train_score=True,
+                                return_estimator=True)
+    return cv_results
