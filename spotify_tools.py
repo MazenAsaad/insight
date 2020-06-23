@@ -304,7 +304,7 @@ def related_artists_network(artist_id, degrees=0):
 
 
 
-def recommended_tracks(artist_id_list, pop_list=range(5,100,30)):
+def recommended_tracks(artist_id_list, pop_list=range(5, 100, 30)):
 	"""Get a list of similar tracks based on a seed list o artists, distributed across popularity scores.
 
 	artist_id_list - the list of artists with which to seed track recommendations
