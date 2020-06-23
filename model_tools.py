@@ -17,88 +17,88 @@ from sklearn import metrics
 
 
 def pop_classes(pop_vals, cutoffs=[75]):
-	"""Turn popularity scores into classes based on percentile cutoffs.
+    """Turn popularity scores into classes based on percentile cutoffs.
 
-	pop_vals - the list of popularity values
-	cutoffs - the list of percentile cutoffs to use
-	(will assign a separate class for each percentile in order)
-	"""
-	# Check if the cutoff is a single integer and not a list
-	if isinstance(cutoffs, int):
-		cutoffs = [cutoffs]
-	
-	# Convert popularity values to a numpy array (for speed)
-	p = np.array(pop_vals)
-	
-	# Set each percentile chunk to a different class (in ranked order)
-	classes = np.array([0] * len(p))
-	for pct in cutoffs:
-		c = np.where(p >= np.percentile(p, pct), 1, 0)
-		classes = classes + c
-	return classes
+    pop_vals - the list of popularity values
+    cutoffs - the list of percentile cutoffs to use
+    (will assign a separate class for each percentile in order)
+    """
+    # Check if the cutoff is a single integer and not a list
+    if isinstance(cutoffs, int):
+        cutoffs = [cutoffs]
+    
+    # Convert popularity values to a numpy array (for speed)
+    p = np.array(pop_vals)
+    
+    # Set each percentile chunk to a different class (in ranked order)
+    classes = np.array([0] * len(p))
+    for pct in cutoffs:
+        c = np.where(p >= np.percentile(p, pct), 1, 0)
+        classes = classes + c
+    return classes
 
 
 
 def seed_data(artist_id, degrees=2):
-	"""Pull the relevant data for a seed artist.
+    """Pull the relevant data for a seed artist.
 
-	artist_id - the Spotify ID of the seed artist
-	degrees - the number of degrees out in the related artists network to search
-	"""
-	# Get the network of related artists
-	net = related_artists_network(artist_id, degrees)
-	
-	# Get the seed artist's tracklist id values
-	seed_list = artist_tracklist(artist_id)
-	seed_list = [x[1] for x in seed_list]
-	
-	# Get the list of recommended tracks and remove any belonging to the seed artist
-	recs = recommended_tracks(net)
-	recs_filt = list(set(recs).difference(seed_list))
-	
-	# Get the full dataframe for each track id in the recommendation list
-	if recs_filt:
-		df = track_df(recs_filt)
-	else:
-		# Assign None in case the artist is so small there weren't any recommended artists
-		df = None
-	return (artist_id, net, seed_list, recs, recs_filt, df)
+    artist_id - the Spotify ID of the seed artist
+    degrees - the number of degrees out in the related artists network to search
+    """
+    # Get the network of related artists
+    net = related_artists_network(artist_id, degrees)
+    
+    # Get the seed artist's tracklist id values
+    seed_list = artist_tracklist(artist_id)
+    seed_list = [x[1] for x in seed_list]
+    
+    # Get the list of recommended tracks and remove any belonging to the seed artist
+    recs = recommended_tracks(net)
+    recs_filt = list(set(recs).difference(seed_list))
+    
+    # Get the full dataframe for each track id in the recommendation list
+    if recs_filt:
+        df = track_df(recs_filt)
+    else:
+        # Assign None in case the artist is so small there weren't any recommended artists
+        df = None
+    return (artist_id, net, seed_list, recs, recs_filt, df)
 
 
 
 def save_random_artist_data(start_idx=0, end_idx=3):
-	"""Go through a slice of the random_artists seed list and generate/save the data needed for modeling tests."""
-	# Load the random_artists list, or create & save it if it doesn't exist
-	if os.path.exists('Data/random_artists.pkl'):
-		print('Load: random_artists')
-		with open('Data/random_artists.pkl', 'rb') as f:
-			random_artists = pickle.load(f)
-	else:
-		random_artists = get_random_artists()
-		with open('Data/random_artists.pkl', 'wb') as f:
-			pickle.dump(random_artists, f)
-		print('Saved: random_artists')
+    """Go through a slice of the random_artists seed list and generate/save the data needed for modeling tests."""
+    # Load the random_artists list, or create & save it if it doesn't exist
+    if os.path.exists('Data/random_artists.pkl'):
+        print('Load: random_artists')
+        with open('Data/random_artists.pkl', 'rb') as f:
+            random_artists = pickle.load(f)
+    else:
+        random_artists = get_random_artists()
+        with open('Data/random_artists.pkl', 'wb') as f:
+            pickle.dump(random_artists, f)
+        print('Saved: random_artists')
 
-	# Get the seed_data for each artist and save it
-	for n, artist in enumerate(random_artists[start_idx:end_idx]):
-		save_name = 'data_artist_{}.pkl'.format(n+start_idx)
-		save_path = 'Data/{}'.format(save_name)
+    # Get the seed_data for each artist and save it
+    for n, artist in enumerate(random_artists[start_idx:end_idx]):
+        save_name = 'data_artist_{}.pkl'.format(n+start_idx)
+        save_path = 'Data/{}'.format(save_name)
 
-		# Skip this file if it already exists
-		if os.path.exists(save_path):
-			print('Skipped: ', save_name)
-			continue
+        # Skip this file if it already exists
+        if os.path.exists(save_path):
+            print('Skipped: ', save_name)
+            continue
 
-		# Create and save the data
-		save_data = seed_data(artist[1])
-		with open(save_path, 'wb') as f:
-			pickle.dump([save_name, artist, save_data], f)
-		print('Saved: ', save_name)
+        # Create and save the data
+        save_data = seed_data(artist[1])
+        with open(save_path, 'wb') as f:
+            pickle.dump([save_name, artist, save_data], f)
+        print('Saved: ', save_name)
 
 
 
 def split_df(input_df):
-	"""Generate the training and test splits from a dataframe, plus shuffled data for baseline."""
+    """Generate the training and test splits from a dataframe, plus shuffled data for baseline."""
     # Convert columns to relevant X and y features
     all_features = input_df.drop(['Track_Name', 'Track_ID', 'Track_Artists', 'Track_Album'], axis=1)
     X = all_features.drop(['Track_Popularity'], axis=1)
@@ -121,11 +121,11 @@ def split_df(input_df):
 
 
 def RFC_list(n_est_list, max_depth_list):
-	"""Create a list of different Random Forest Classifier models to search through.
+    """Create a list of different Random Forest Classifier models to search through.
 
-	Note: GridSearchCV wasn't used because it doesn't return all estimators for comparing hold-out
-	validation scores, 9only the best performing one).
-	"""
+    Note: GridSearchCV wasn't used because it doesn't return all estimators for comparing hold-out
+    validation scores, 9only the best performing one).
+    """
     models = []
     for est in n_est_list:
         for depth in max_depth_list:
@@ -138,11 +138,11 @@ def RFC_list(n_est_list, max_depth_list):
 
 
 def LR_list(penalty_list, c_list):
-	"""Create a list of different Logistic Regression models to search through.
+    """Create a list of different Logistic Regression models to search through.
 
-	Note: GridSearchCV wasn't used because it doesn't return all estimators for comparing hold-out
-	validation scores, 9only the best performing one).
-	"""
+    Note: GridSearchCV wasn't used because it doesn't return all estimators for comparing hold-out
+    validation scores, 9only the best performing one).
+    """
     models = []
     for pen in penalty_list:
         for c_val in c_list:
@@ -156,11 +156,11 @@ def LR_list(penalty_list, c_list):
 
 
 def SVC_list(c_list):
-	"""Create a list of different Support Vector Classifier models to search through.
+    """Create a list of different Support Vector Classifier models to search through.
 
-	Note: GridSearchCV wasn't used because it doesn't return all estimators for comparing hold-out
-	validation scores, 9only the best performing one).
-	"""
+    Note: GridSearchCV wasn't used because it doesn't return all estimators for comparing hold-out
+    validation scores, 9only the best performing one).
+    """
     models = []
     for c_val in c_list:
         models.append(SVC(kernel='linear',
