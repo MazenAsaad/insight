@@ -9,3 +9,4 @@ save_*.py
 
 Data/data_artist_???.pkl
 Data/data_artist_????.pkl
+Data/cv_results_*.pkl
