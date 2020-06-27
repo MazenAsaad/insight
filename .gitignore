@@ -18,3 +18,5 @@ Data/cv_results_artist_*.pkl
 !Data/cv_results_artist_??.pkl
 !Data/cv_results_artist_1??.pkl
 !Data/cv_results_artist_200.pkl
+
+Figures/

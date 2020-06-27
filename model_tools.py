@@ -23,8 +23,8 @@ def pop_classes(pop_vals, cutoffs=[75]):
     cutoffs - the list of percentile cutoffs to use
     (will assign a separate class for each percentile in order)
     """
-    # Check if the cutoff is a single integer and not a list
-    if isinstance(cutoffs, int):
+    # Check if the cutoff is not already a list
+    if not isinstance(cutoffs, list):
         cutoffs = [cutoffs]
     
     # Convert popularity values to a numpy array (for speed)
@@ -126,6 +126,13 @@ def RFC_list(n_est_list, max_depth_list):
     Note: GridSearchCV wasn't used because it doesn't return all estimators for comparing hold-out
     validation scores, 9only the best performing one).
     """
+    # Check if n_est_list is not already a list
+    if not isinstance(n_est_list, list):
+        n_est_list = [n_est_list]
+    # Check if max_depth_list is not already a list
+    if not isinstance(max_depth_list, list):
+        max_depth_list = [max_depth_list]
+
     models = []
     for est in n_est_list:
         for depth in max_depth_list:
@@ -143,6 +150,13 @@ def LR_list(penalty_list, c_list):
     Note: GridSearchCV wasn't used because it doesn't return all estimators for comparing hold-out
     validation scores, 9only the best performing one).
     """
+    # Check if penalty_list is not already a list
+    if not isinstance(penalty_list, list):
+        penalty_list = [penalty_list]
+    # Check if c_list is not already a list
+    if not isinstance(c_list, list):
+        c_list = [c_list]
+
     models = []
     for pen in penalty_list:
         for c_val in c_list:
@@ -161,6 +175,10 @@ def SVC_list(c_list):
     Note: GridSearchCV wasn't used because it doesn't return all estimators for comparing hold-out
     validation scores, 9only the best performing one).
     """
+    # Check if c_list is not already a list
+    if not isinstance(c_list, list):
+        c_list = [c_list]
+
     models = []
     for c_val in c_list:
         models.append(SVC(kernel='linear',

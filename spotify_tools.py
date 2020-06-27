@@ -80,8 +80,8 @@ def playlist_df(playlist_id):
 
 def artist_df(artist_id_list):
     """Given a list of artist ids, put relevant info into a dataframe."""
-    # Check if the input is an individual string and not a list
-    if isinstance(artist_id_list, str):
+    # Check if the input is not already a list
+    if not isinstance(artist_id_list, list):
         artist_id_list = [artist_id_list]
         
     # Set credentials
@@ -110,8 +110,8 @@ def artist_df(artist_id_list):
 
 def album_df(album_id_list):
     """Given a list of album ids, put relevant info into a dataframe."""
-    # Check if the input is an individual string and not a list
-    if isinstance(album_id_list, str):
+    # Check if the input not already a list
+    if not isinstance(album_id_list, list):
         album_id_list = [album_id_list]
     
     # Set credentials
@@ -143,8 +143,8 @@ def album_df(album_id_list):
 
 def track_df(track_id_list):
     """Given a list of track ids, put relevant info into a dataframe (including audio features)."""
-    # Check if the input is an individual string and not a list
-    if isinstance(track_id_list, str):
+    # Check if the input is not already a list
+    if not isinstance(track_id_list, list):
         track_id_list = [track_id_list]
         
     # Set credentials
@@ -310,8 +310,8 @@ def recommended_tracks(artist_id_list, pop_list=range(5, 100, 30)):
     artist_id_list - the list of artists with which to seed track recommendations
     pop_list - the target popularity scores for getting track recommendations
     """
-    # Check if the input is an individual string and not a list
-    if isinstance(artist_id_list, str):
+    # Check if the input is not already a list
+    if not isinstance(artist_id_list, list):
         artist_id_list = [artist_id_list]
     
     # Set credentials
