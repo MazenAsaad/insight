@@ -25,7 +25,7 @@ if search_box:
 			st.header('Selected Artist: {}'.format(res[0]))
 			input_artist = res[1]
 		if res[2]:
-			st.sidebar.image(res[2][2]['url'])
+			st.sidebar.image(res[2][2]['url'], caption=res[0], width=160)
 		else:
 			st.sidebar.markdown(':crying_cat_face: *No image found* :crying_cat_face:')
 		st.sidebar.markdown('\n')
