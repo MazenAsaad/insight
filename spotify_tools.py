@@ -163,7 +163,8 @@ def track_df(track_id_list):
             trk_dict = {'Track_Name':trk['name'],
                         'Track_ID':trk['id'],
                         'Track_Artists':df_listcell([x['id'] for x in trk['artists']]),
-                        'Track_Album':trk['album']['id'],
+                        'Track_Album_Name':trk['album']['name'],
+                        'Track_Album_ID':trk['album']['id'],
                         'Track_Popularity':trk['popularity'],
                         'Track_Explicitness':int(trk['explicit'] == True),
                         'Track_Duration':trk['duration_ms']}
