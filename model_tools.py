@@ -100,13 +100,21 @@ def save_random_artist_data(start_idx=0, end_idx=3):
 
 
 
-def split_df(input_df):
-    """Generate the training and test splits from a dataframe, plus shuffled data for baseline."""
-    # Convert columns to relevant X and y features
+def drop_cols(input_df):
+    """Drop the irrelevant columns of the input dataframe."""
+    # Drop the columns
     if 'Track_Album' in input_df.columns:
         all_features = input_df.drop(['Track_Name', 'Track_ID', 'Track_Artists', 'Track_Album'], axis=1)
     else:
         all_features = input_df.drop(['Track_Name', 'Track_ID', 'Track_Artists', 'Track_Album_Name', 'Track_Album_ID'], axis=1)
+    return all_features
+
+
+
+def split_df(input_df):
+    """Generate the training and test splits from a dataframe, plus shuffled data for baseline."""
+    # Convert columns to relevant X and y features
+    all_features = drop_cols(input_df)
     X = all_features.drop(['Track_Popularity'], axis=1)
     y_vals = all_features['Track_Popularity']
     
