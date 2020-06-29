@@ -1,3 +1,6 @@
+"""Functions used for modeling data."""
+
+
 # Import libraries and functions
 import os
 import pickle
@@ -6,7 +9,7 @@ import pandas as pd
 from spotify_tools import *
 
 from sklearn.compose import ColumnTransformer
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler, minmax_scale
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import train_test_split, cross_validate
 from sklearn.ensemble import RandomForestClassifier

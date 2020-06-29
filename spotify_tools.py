@@ -1,3 +1,6 @@
+"""Functions used for interacting with data from the Spotify API."""
+
+
 # Set up Spotipy (Spotify API package)
 import os
 import pandas as pd
