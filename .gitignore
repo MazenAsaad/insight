@@ -6,6 +6,7 @@ __pycache__/
 Testing/
 
 save_*.py
+!save_cv_results.py
 
 Data/data_artist_*.pkl
 !Data/data_artist_?.pkl
