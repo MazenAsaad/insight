@@ -100,6 +100,21 @@ def save_random_artist_data(start_idx=0, end_idx=3):
 
 
 
+def load_sample_data(filerange=range(201)):
+    """Load the saved example artist data for evaluation."""
+    # Load the data
+    results_list = []
+    for i_file in filerange:
+        fpath = 'Data/data_artist_{}.pkl'.format(i_file)
+        if not os.path.exists(fpath):
+            continue
+        with open(fpath, 'rb') as f:
+            results = pickle.load(f)
+        results_list.append(results)
+    return results_list
+
+
+
 def drop_cols(input_df):
     """Drop the irrelevant columns of the input dataframe."""
     # Drop the columns
