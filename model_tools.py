@@ -274,8 +274,8 @@ def prep_data_streamlit(artist_id):
     # Convert popularity values to binary classes
     y_test = pop_classes(y_vals_test)
 
-    # Return the training and test data
-    return X_train, y_train, X_test, y_test
+    # Return the training and test data, and the artist library
+    return X_train, y_train, X_test, y_test, artist_library_df
 
 
 
