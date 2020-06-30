@@ -177,3 +177,57 @@ def plot_reclist_sizes(filerange=range(201)):
     plt.ylabel('# of Artists', fontsize=18)
     plt.yticks(fontsize=14)
     plt.show()
+
+
+
+def tuning_curve(mean_dict, std_dict, param_vals,
+                 label_vals=['', 'Parameter Value', 'Score'],
+                 color_vals=['black'],
+                 ymax=None, logx=False):
+    """Plot curves for hyperparameter turning of models.
+
+    mean_dict - dictionary of mean values (each key is a different curve)
+    std_dict - dictionary of standard deviation values (each key is a different curve)
+    param_vals - the range of values for the hyperparameter (i.e. the x-axis values)
+    label_vals - labels for the title, x-axis, and y-axis
+    color_vals - values for the colors of the different curves, in order of columns
+    ymax - if set, will make the y-axis limits (0, ymax)
+    logx - if True, will use a log scale on the x-axis
+    """
+    # Set up the figure
+    plt.figure(figsize=(16,8))
+    
+    # Iterate through the different curves to plot
+    for n, key in enumerate(mean_dict):
+        # Set the color of the curve (default to black)
+        if n < len(color_vals):
+            color_choice = color_vals[n]
+        else:
+            color_choice = 'black'
+
+        # Plot the means
+        m = np.array(mean_dict[key])
+        if logx:
+            plt.semilogx(param_vals, m, label=key, color=color_choice, lw=2)
+        else:
+            plt.plot(param_vals, m, label=key, color=color_choice, lw=2)
+
+        # Add the standard deviations
+        if key in std_dict:
+            s = np.array(std_dict[key])
+            plt.fill_between(param_vals, m-s, m+s, alpha=0.2, color=color_choice, lw=1)    
+    
+    # Format and display the plot
+    plt.title(label_vals[0], fontsize=20)
+    plt.legend(loc='best', fontsize=14)
+    plt.xlabel(label_vals[1], fontsize=18)
+    if logx:
+        plt.xlim(param_vals[0] / 10, xmax = param_vals[-1] * 10)
+    else:
+        plt.xlim(0, param_vals[0] + param_vals[-1])
+    plt.xticks(fontsize=14)
+    plt.ylabel(label_vals[2], fontsize=18)
+    if ymax:
+        plt.ylim(0, ymax)
+    plt.yticks(fontsize=14)    
+    plt.show()
