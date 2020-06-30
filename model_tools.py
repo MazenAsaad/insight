@@ -9,7 +9,7 @@ import pandas as pd
 from spotify_tools import *
 
 from sklearn.compose import ColumnTransformer
-from sklearn.preprocessing import MinMaxScaler, minmax_scale
+from sklearn.preprocessing import MinMaxScaler
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import train_test_split, cross_validate
 from sklearn.ensemble import RandomForestClassifier
@@ -232,14 +232,14 @@ def build_pipeline(input_model):
     # Set up the pipeline object
     pipeline = Pipeline([('preprocess', ct),
                          ('model', input_model)])
-    return pipeline
+    return pipeline, cols2scale, cols2drop
 
 
 
 def run_cv(input_model, X_train, y_train):
     """Run the cross-validation on the input model."""
     # Set up the pipeline object
-    pipeline = build_pipeline(input_model)
+    pipeline, cols2scale, cols2drop = build_pipeline(input_model)
 
     # Run the cross-validation and return the results
     cv_results = cross_validate(pipeline,
