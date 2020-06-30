@@ -276,3 +276,43 @@ def prep_data_streamlit(artist_id):
 
     # Return the training and test data
     return X_train, y_train, X_test, y_test
+
+
+
+def get_RFC_importances(forest, X_trans, y_train, col_labels):
+    """Calculate and sort feaure importances from the random forest classifier.
+    
+    forest - the fitted random forest model
+    X_trans - X_train used to fit the model, with preprocessing already applied
+    y_train - y_train used to fit the model
+    col_labels - names of the features, with preprocessing (e.g. dropping and resorting) already applied
+    """
+    # Calculate the mean and standard deviation of the feature importances
+    imp_mean = forest.feature_importances_
+    imp_std = np.std([tree.feature_importances_ for tree in forest.estimators_], axis=0)
+    
+    # Filter X_trans into positive and negative class samples, and take the mean across features
+    pop1 = X_trans[y_train == 1]
+    pop0 = X_trans[y_train == 0]
+    mean1 = pop1.mean(axis=0)
+    mean0 = pop0.mean(axis=0)
+    
+    # For classes where smaller values drive popularity, flip the sign and the bar color for that feature
+    barcolors = ['b'] * len(imp_mean)
+    for n in range(len(imp_mean)):
+        if mean1[n] < mean0[n]:
+            imp_mean[n] = -imp_mean[n]
+            barcolors[n] = 'r'
+            
+    # Re-sort the relevant vectors by magnitude of feature importance
+    ordered_idx = np.argsort(abs(imp_mean))[::-1]
+    sorted_mean = imp_mean[ordered_idx]
+    sorted_std = imp_std[ordered_idx]
+    sorted_labels = col_labels.copy()
+    sorted_colors = barcolors.copy()
+    for i, n in enumerate(ordered_idx):
+        sorted_labels[i] = col_labels[n]
+        sorted_colors[i] = barcolors[n]
+        
+    # Return the mean, std, labels, and bar colors
+    return sorted_mean, sorted_std, sorted_labels, sorted_colors
