@@ -41,7 +41,7 @@ client_secret = 'YourClientSecretStringGoesHere'
 * __model_tools.py__ - Contains all of the relevant functions for generating and testing the machine learning models.
 * __plot_tools.py__ - Contains all of the relevant functions for generating important visualizations.
 * __save_cv_results.py__ - A script used for generating cross-validation results to compare model performance on sample data.
-* __streamlit_app.py__ - The main script for running the dashboard via Streamlit.
+* __streamlit_app.py__ - The main script for implementing the dashboard via Streamlit.
 
 # Installation
 (Installation instructions and examples to come...)
