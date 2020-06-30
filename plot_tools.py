@@ -231,3 +231,38 @@ def plot_tuning_curve(mean_dict, std_dict, param_vals,
         plt.ylim(0, ymax)
     plt.yticks(fontsize=14)    
     plt.show()
+
+
+
+def print_RFC_importances(sorted_mean, sorted_labels):
+    """Print the sign and magnitude for the random forest classifier feature importances.
+    
+    sorted_mean - the average value of importance for the different features
+    sorted_labels - the names of the different features
+    """
+    # List the features by magnitude of importance
+    for n in range(len(sorted_labels)):
+        if sorted_colors[n] == 'r':
+            msg = '-'
+        else:
+            msg = '+'
+        print('{:>16}:  {} {:4.1f}%'.format(sorted_labels[n], msg, abs(sorted_mean[n]*100)))
+
+
+
+def plot_RFC_importances(sorted_mean, sorted_std, sorted_labels, sorted_colors):
+    """Plot the random forest classifier feature importances.
+    
+    sorted_mean - the average value of importance for the different features
+    sorted_std - the standard deviation of importance for the different features
+    sorted_labels - the names of the different features
+    sorted_colors - colors to use for the bar graph
+    """
+    # Plot the data and format the plot
+    plt.figure(figsize=(8,8))
+    plt.bar(range(len(sorted_labels)), sorted_mean, yerr=sorted_std, color=sorted_colors)
+    plt.title('Important Features', fontsize=20)
+    plt.xticks(range(len(sorted_labels)), sorted_labels, rotation=75, fontsize=16)
+    plt.ylabel('Relative Importance', fontsize=18)
+    plt.yticks(fontsize=14)
+    plt.show()
