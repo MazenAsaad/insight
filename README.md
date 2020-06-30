@@ -39,9 +39,9 @@ client_secret = 'YourClientSecretStringGoesHere'
 * __Data/__ - Contains sample data pulled from the Spotify API used for model testing and validation at the time of this project's creation. Data pulled from the API at a future date may not exactly match the results shown here.
 * __spotify_tools.py__ - Contains all of the relevant functions for pulling data from the Spotify API (via the spotipy package).
 * __model_tools.py__ - Contains all of the relevant functions for generating and testing the machine learning models.
-* __plot_tools.py__ - Contains all of the relevant functions for generating relevant visualizations.
+* __plot_tools.py__ - Contains all of the relevant functions for generating important visualizations.
 * __save_cv_results.py__ - A script used for generating cross-validation results to compare model performance on sample data.
-* __streamlit_layout.py__ - The main script for running the dashboard via Streamlit.
+* __streamlit_app.py__ - The main script for running the dashboard via Streamlit.
 
 # Installation
 (Installation instructions and examples to come...)
