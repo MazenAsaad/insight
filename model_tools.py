@@ -250,3 +250,29 @@ def run_cv(input_model, X_train, y_train):
                                 return_train_score=True,
                                 return_estimator=True)
     return cv_results
+
+
+
+def prep_data_streamlit(artist_id):
+    """Prepare the training and test data for use with the front-end."""
+    # Pull the necessary data from the Spotify API
+    seed_results = seed_data(artist_id)
+    
+    # Generate X_train and y_train based on the recommended tracks list
+    full_df = seed_results[5]
+    feats_train = drop_cols(full_df)
+    X_train = feats_train.drop(['Track_Popularity'], axis=1)
+    y_vals_train = feats_train['Track_Popularity']
+    # Convert popularity values to binary classes
+    y_train = pop_classes(y_vals_train)
+
+    # Generate X_test and y_test based on the artist libarary track list
+    artist_library_df = track_df(seed_results[2])
+    feats_test = drop_cols(artist_library_df)
+    X_test = feats_test.drop(['Track_Popularity'], axis=1)
+    y_vals_test = feats_test['Track_Popularity']
+    # Convert popularity values to binary classes
+    y_test = pop_classes(y_vals_test)
+
+    # Return the training and test data
+    return X_train, y_train, X_test, y_test
