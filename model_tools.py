@@ -149,7 +149,7 @@ def split_df(input_df):
 
 
 
-def RFC_list(n_est_list, max_depth_list):
+def make_RFC_list(n_est_list, max_depth_list):
     """Create a list of different Random Forest Classifier models to search through.
 
     Note: GridSearchCV wasn't used because it doesn't return all estimators for comparing
@@ -173,7 +173,7 @@ def RFC_list(n_est_list, max_depth_list):
 
 
 
-def LR_list(penalty_list, c_list):
+def make_LR_list(penalty_list, c_list):
     """Create a list of different Logistic Regression models to search through.
 
     Note: GridSearchCV wasn't used because it doesn't return all estimators for comparing
@@ -198,7 +198,7 @@ def LR_list(penalty_list, c_list):
 
 
 
-def SVC_list(c_list):
+def make_SVC_list(c_list):
     """Create a list of different Support Vector Classifier models to search through.
 
     Note: GridSearchCV wasn't used because it doesn't return all estimators for comparing

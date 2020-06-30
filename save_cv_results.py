@@ -39,9 +39,9 @@ for i_file in filerange:
 
         # Set up the models to test
         all_models = []
-        all_models.extend(RFC_list(n_trees, n_depth))
-        all_models.extend(LR_list(p_list, c_list))
-        all_models.extend(SVC_list(c_list))
+        all_models.extend(make_RFC_list(n_trees, n_depth))
+        all_models.extend(make_LR_list(p_list, c_list))
+        all_models.extend(make_SVC_list(c_list))
 
         # Test the models on the real data and the randomized data
         results = []

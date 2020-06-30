@@ -12,7 +12,7 @@ from model_tools import *
 
 def log10ticks(y, pos):
     """Scientific notation for tick marks via FuncFormatter()."""
-    return r'$10^{:.0f}$'.format(y)
+    return '$10^{:.0f}$'.format(y)
 
 
 
@@ -29,7 +29,7 @@ def plot_columns(input_df):
     all_features = drop_cols(input_df)
 
     # Plot the distributions and format the plots
-    fig, axs = plt.subplots(len(all_features.columns), figsize = (14,90))
+    fig, axs = plt.subplots(len(all_features.columns), figsize=(14, 90))
     for num, col in enumerate(all_features.columns):
         plt.sca(axs[num])
         dist = sns.distplot(all_features[col], kde=False)
@@ -44,7 +44,7 @@ def plot_columns(input_df):
 def plot_popularity(input_df):
     """Plot the distribution of track popularity."""
     # Plot the data and format the plot
-    plt.figure(figsize=(14,6))
+    plt.figure(figsize=(14, 6))
     dist = sns.distplot(input_df['Track_Popularity'], kde=False, bins=np.array(range(0,100,2)))
     plt.xlabel('Popularity Score', fontsize=18)
     plt.xlim(0, 100)
@@ -65,7 +65,7 @@ def plot_correlations(input_df):
     col_names = [x.replace('Track_', '') for x in all_features.columns]
 
     # Plot the correlation heatmap and format the plot
-    plt.figure(figsize=(10,8))
+    plt.figure(figsize=(10, 8))
     htmp = sns.heatmap(corr, cmap='RdBu_r', vmin=-1, vmax=1)
     htmp.set_xticklabels(col_names, fontsize=14)
     htmp.set_yticklabels(col_names, fontsize=14)
@@ -95,7 +95,7 @@ def plot_follower_count(filerange=range(201)):
     data_full, binning = rebin(np.log10(np.array(followers) + 1), 0.25) # +1 in case of log(0)
 
     # Plot the two distributions together and format the plot
-    plt.figure(figsize=(6,6))
+    plt.figure(figsize=(6, 6))
     dist = sns.distplot(data_sample, bins=binning, kde=True)
     dist = sns.distplot(data_full, bins=binning, kde=True)
     plt.xlabel('# of Followers', fontsize=18)
@@ -121,7 +121,7 @@ def plot_network_sizes(filerange=range(201)):
     data, binning = rebin(all_nets, 25)
 
     # Plot the data and format the plot
-    plt.figure(figsize=(6,6))
+    plt.figure(figsize=(6, 6))
     dist = sns.distplot(data, bins=binning, kde=False)
     plt.xlabel('# of Artists in Network', fontsize=18)
     plt.xticks(fontsize=14)
@@ -145,7 +145,7 @@ def plot_tracklist_sizes(filerange=range(201)):
     data, binning = rebin(np.log10(np.array(all_tracklists) + 1), 0.25) # +1 in case of log(0)
 
     # Plot the data and format the plot
-    plt.figure(figsize=(6,6))
+    plt.figure(figsize=(6, 6))
     dist = sns.distplot(data, bins=binning, kde=False)
     plt.xlabel('# of Tracks in Artist Library', fontsize=18)
     plt.xticks(fontsize=14)
@@ -170,7 +170,7 @@ def plot_reclist_sizes(filerange=range(201)):
     data, binning = rebin(all_recs, 1000)
 
     # Plot the data and format the plot
-    plt.figure(figsize=(6,6))
+    plt.figure(figsize=(6, 6))
     dist = sns.distplot(data, bins=binning, kde=False)
     plt.xlabel('# of Tracks in Recommendation List', fontsize=18)
     plt.xticks(fontsize=14)
@@ -195,7 +195,7 @@ def plot_tuning_curve(mean_dict, std_dict, param_vals,
     logx - if True, will use a log scale on the x-axis
     """
     # Set up the figure
-    plt.figure(figsize=(16,8))
+    plt.figure(figsize=(16, 8))
     
     # Iterate through the different curves to plot
     for n, key in enumerate(mean_dict):
@@ -242,7 +242,7 @@ def print_RFC_importances(sorted_mean, sorted_labels):
     """
     # List the features by magnitude of importance
     for n in range(len(sorted_labels)):
-        if sorted_colors[n] == 'r':
+        if sorted_mean[n] < 0:
             msg = '-'
         else:
             msg = '+'
@@ -259,7 +259,7 @@ def plot_RFC_importances(sorted_mean, sorted_std, sorted_labels, sorted_colors):
     sorted_colors - colors to use for the bar graph
     """
     # Plot the data and format the plot
-    plt.figure(figsize=(8,8))
+    plt.figure(figsize=(8, 8))
     plt.bar(range(len(sorted_labels)), sorted_mean, yerr=sorted_std, color=sorted_colors)
     plt.title('Important Features', fontsize=20)
     plt.xticks(range(len(sorted_labels)), sorted_labels, rotation=75, fontsize=16)
