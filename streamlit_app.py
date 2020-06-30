@@ -1,11 +1,11 @@
-# Import relevant libraries
-import streamlit as st
-import numpy as np
-import pandas as pd
+"""Codebase for the streamlit front-end dashboard."""
 
-import matplotlib.pyplot as plt
-import seaborn as sns; sns.set()
+
+# Import relevant libraries (many contained within other scripts)
+import streamlit as st
 from spotify_tools import *
+from model_tools import *
+from plot_tools import *
 
 
 
