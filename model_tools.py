@@ -316,3 +316,25 @@ def get_RFC_importances(forest, X_trans, y_train, col_labels):
         
     # Return the mean, std, labels, and bar colors
     return sorted_mean, sorted_std, sorted_labels, sorted_colors
+
+
+
+def songs_to_promote(artist_library_df, y_test, y_pred):
+    """Use the results from the model to find false negatives,
+    songs that should be popular but aren't, to suggest for promotion.
+
+    artist_library_df - the tracklist of the original seed artist with all metadata
+    y_test - the calculated popularity scores for the artist's library
+    y_pred - the predicted popularity scores for the artist's library
+    """
+    # Filter out the predicted false negatives
+    suggestion_df = artist_library_df[(y_test == 0) & (y_pred == 1)]
+
+    # Sort the suggestions and return the relevant columns
+    suggestion_df = suggestion_df.sort_values(by=['Track_Popularity',
+                                                  'Track_Album_Name',
+                                                  'Track_Name'],
+                                              ascending=[False, True, True])
+    song_suggestions = pd.DataFrame({'Album':suggestion_df['Track_Album_Name'],
+                                      'Track':suggestion_df['Track_Name']}).reset_index(drop=True)
+    return song_suggestions
