@@ -9,6 +9,7 @@ from spotipy.oauth2 import SpotifyClientCredentials
 from spotify_credentials import *
 os.environ["SPOTIPY_CLIENT_ID"] = client_id
 os.environ["SPOTIPY_CLIENT_SECRET"] = client_secret
+from collections import defaultdict
 
 
 
@@ -385,3 +386,57 @@ def get_collabs(artist_id):
     collab_list.remove(artist_id)
     collab_list_filt.remove(artist_id)
     return (collab_list, collab_list_filt)
+
+
+
+def suggested_collabs(input_artist):
+    """Return a list of suggested collaborations for a given seed artist."""
+    # Get the related artist network (degree 1)
+    net = related_artists_network(input_artist, 1)
+    
+    # Get the previous collaborators of the input artist
+    seed_collabs = get_collabs(input_artist)
+    seed_collabs = seed_collabs[1]
+    
+    # Get the previous collaborators of artists in the network
+    # And keep track of which artist(s) the collaboration came from
+    collabs = []
+    worked_with = defaultdict(list)
+    for art in net:
+        # Get the name of the network artist
+        art_df = artist_df(art)
+        art_name = art_df['Artist_Name'][0]
+
+        # Get the previous collaborators for this artist and add it to the overall list
+        net_collabs = get_collabs(art)
+        net_collabs = net_collabs[1]
+        collabs.extend(net_collabs)
+
+        # Add the network artist name to the list of artists associated with the suggestions
+        for net_art in net_collabs:
+            worked_with[net_art].append(art_name)
+
+    # Remove duplicates and pre-existing collaborations
+    collabs = list(set(collabs).difference(seed_collabs))
+    
+    # Get info about artists in the filtered list
+    collabs_df = artist_df(collabs)
+    
+    # Add a column to keep track of which network artist(s) generated each recommendation
+    new_col = []
+    for art in range(collabs_df.shape[0]):
+        source = worked_with[collabs_df.loc[art, 'Artist_ID']]
+        # Remove duplicates and alphabetize
+        source = list(set(source))
+        new_col.append(source)
+    collabs_df['Worked with'] = new_col
+
+    # Sort the data by popularity and return the relevant information
+    collabs_df = collabs_df.sort_values(by=['Artist_Popularity',
+                                            'Artist_Followers'],
+                                        ascending=False).reset_index(drop=True)
+    collab_suggestions = pd.DataFrame({'Artist':collabs_df['Artist_Name'],
+                                       'Popularity':collabs_df['Artist_Popularity'],
+                                       'Follower Count':collabs_df['Artist_Followers'],
+                                       'Worked with':collabs_df['Worked with']})
+    return collab_suggestions
