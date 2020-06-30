@@ -218,8 +218,8 @@ def SVC_list(c_list):
 
 
 
-def run_cv(input_model, X_train, y_train):
-    """Run the cross-validation on the input model."""
+def build_pipeline(input_model):
+    """Build the pipeline object for classification."""
     # Select the columns to be re-scaled and dropped
     cols2scale = ['Track_Duration', 'Track_Loudness', 'Track_Tempo']
     cols2drop = ['Track_Key', 'Track_TimeSig']
@@ -232,7 +232,15 @@ def run_cv(input_model, X_train, y_train):
     # Set up the pipeline object
     pipeline = Pipeline([('preprocess', ct),
                          ('model', input_model)])
-    
+    return pipeline
+
+
+
+def run_cv(input_model, X_train, y_train):
+    """Run the cross-validation on the input model."""
+    # Set up the pipeline object
+    pipeline = build_pipeline(input_model)
+
     # Run the cross-validation and return the results
     cv_results = cross_validate(pipeline,
                                 X_train,

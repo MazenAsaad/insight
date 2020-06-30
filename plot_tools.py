@@ -180,7 +180,7 @@ def plot_reclist_sizes(filerange=range(201)):
 
 
 
-def tuning_curve(mean_dict, std_dict, param_vals,
+def plot_tuning_curve(mean_dict, std_dict, param_vals,
                  label_vals=['', 'Parameter Value', 'Score'],
                  color_vals=['black'],
                  ymax=None, logx=False):
