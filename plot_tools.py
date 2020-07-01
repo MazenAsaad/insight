@@ -149,7 +149,7 @@ def plot_tracklist_sizes(filerange=range(201)):
     # Plot the data and format the plot
     plt.figure(figsize=(6, 6))
     dist = sns.distplot(data, bins=binning, kde=False)
-    plt.xlabel('# of Tracks in Artist Library', fontsize=18)
+    plt.xlabel('# of Tracks in Artist\'s Library', fontsize=18)
     plt.xticks(fontsize=14)
     dist.axes.xaxis.set_major_formatter(mtick.FuncFormatter(log10ticks))
     plt.ylabel('# of Artists', fontsize=18)
