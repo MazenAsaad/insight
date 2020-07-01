@@ -74,7 +74,7 @@ def plot_correlations(input_df):
 
 
 
-def plot_follower_count(filerange=range(201)):
+def plot_follower_count(filerange=range(201), plot_legend=False):
     """Plot the distribution of followers from the evaluation sample of artists."""
     # Load the data
     results_list = load_sample_data(filerange)
@@ -91,18 +91,20 @@ def plot_follower_count(filerange=range(201)):
     all_followers = [x[2] for x in random_artists]
 
     # Set the bins for the histograms
-    data_sample, binning = rebin(np.log10(np.array(all_followers) + 1), 0.25) # +1 in case of log(0)
-    data_full, binning = rebin(np.log10(np.array(followers) + 1), 0.25) # +1 in case of log(0)
+    data_full, binning = rebin(np.log10(np.array(all_followers) + 1), 0.25) # +1 in case of log(0)
+    data_sample, binning = rebin(np.log10(np.array(followers) + 1), 0.25) # +1 in case of log(0)
 
     # Plot the two distributions together and format the plot
     plt.figure(figsize=(6, 6))
-    dist = sns.distplot(data_sample, bins=binning, kde=True)
-    dist = sns.distplot(data_full, bins=binning, kde=True)
+    dist = sns.distplot(data_full, bins=binning, label='2000 random artists', kde=True)
+    dist = sns.distplot(data_sample, bins=binning, label=r'10% subsample', kde=True)
     plt.xlabel('# of Followers', fontsize=18)
     plt.xticks(fontsize=14)
     dist.axes.xaxis.set_major_formatter(mtick.FuncFormatter(log10ticks))
     plt.ylabel('# of Artists', fontsize=18)
     plt.yticks(fontsize=14)
+    if plot_legend:
+        plt.legend(loc='upper left', fontsize=14)
     plt.show()
 
 
