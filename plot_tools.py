@@ -252,19 +252,42 @@ def print_RFC_importances(sorted_mean, sorted_labels):
 
 
 
-def plot_RFC_importances(sorted_mean, sorted_std, sorted_labels, sorted_colors):
+def plot_RFC_importances(sorted_mean, sorted_std, sorted_labels, sorted_colors, st_xlabels=False):
     """Plot the random forest classifier feature importances.
+    Also returns a dataframe of the results for Streamlit.
     
     sorted_mean - the average value of importance for the different features
     sorted_std - the standard deviation of importance for the different features
     sorted_labels - the names of the different features
     sorted_colors - colors to use for the bar graph
+    st_xlabels - if True, change the xticks to integers instead of names
     """
+    # Create a dataframe of the results
+    mean_disp_list = []
+    msg_list = []
+    for imp in sorted_mean:
+        if imp < 0:
+            mean_disp = '- {:4.1f}%'.format(abs(imp)*100)
+            msg = 'Drives it DOWN'
+        else:
+            mean_disp = '+ {:4.1f}%'.format(imp*100)
+            msg = 'Drives it UP'
+        mean_disp_list.append(mean_disp)
+        msg_list.append(msg)
+    importances = pd.DataFrame({'Feature':sorted_labels, 'Impact on popularity':msg_list, 'Importance':mean_disp_list})
+    importances = importances.set_index(importances.index + 1) # Increment by 1 for display purposes in Streamlit
+
+
     # Plot the data and format the plot
     plt.figure(figsize=(8, 8))
     plt.bar(range(len(sorted_labels)), sorted_mean, yerr=sorted_std, color=sorted_colors)
     plt.title('Important Features', fontsize=20)
-    plt.xticks(range(len(sorted_labels)), sorted_labels, rotation=75, fontsize=16)
+    if st_xlabels:
+        plt.xticks(range(len(sorted_labels)), range(1, len(sorted_labels) + 1), fontsize=14)
+        plt.xlabel('Feature # (see below)', fontsize=16)
+    else:
+        plt.xticks(range(len(sorted_labels)), sorted_labels, rotation=75, fontsize=16)
     plt.ylabel('Relative Importance', fontsize=18)
     plt.yticks(fontsize=14)
     plt.show()
+    return importances
