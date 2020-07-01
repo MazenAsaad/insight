@@ -1,9 +1,11 @@
 spotify_credentials.py
+Testing/
 
 *.ipynb
 .ipynb_checkpoints/
 __pycache__/
-Testing/
+!Model_Exploration.ipynb
+
 
 save_*.py
 !save_cv_results.py
