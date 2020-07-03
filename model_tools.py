@@ -335,6 +335,7 @@ def songs_to_promote(artist_library_df, y_test, y_pred):
                                                   'Track_Album_Name',
                                                   'Track_Name'],
                                               ascending=[False, True, True])
-    song_suggestions = pd.DataFrame({'Album':suggestion_df['Track_Album_Name'],
+    song_suggestions = pd.DataFrame({'Popularity':suggestion_df['Track_Popularity'],
+                                     'Album':suggestion_df['Track_Album_Name'],
                                       'Track':suggestion_df['Track_Name']}).reset_index(drop=True)
     return song_suggestions
