@@ -253,21 +253,20 @@ def run_cv(input_model, X_train, y_train):
 
 
 
-def prep_data_streamlit(artist_id):
-    """Prepare the training and test data for use with the front-end."""
-    # Pull the necessary data from the Spotify API
-    seed_results = seed_data(artist_id)
-    
-    # Generate X_train and y_train based on the recommended tracks list
-    full_df = seed_results[5]
-    feats_train = drop_cols(full_df)
+def prep_data_streamlit(artist_library_df, reclist_df):
+    """Prepare the training and test data for use with the front-end.
+
+    artist_library_df - the tracklist of the original seed artist with all metadata
+    reclist_df - the tracklist of the recommended tracks with all the metadata
+    """
+    # Generate X_train and y_train based on the recommended tracks dataframe
+    feats_train = drop_cols(reclist_df)
     X_train = feats_train.drop(['Track_Popularity'], axis=1)
     y_vals_train = feats_train['Track_Popularity']
     # Convert popularity values to binary classes
     y_train = pop_classes(y_vals_train)
 
-    # Generate X_test and y_test based on the artist libarary track list
-    artist_library_df = track_df(seed_results[2])
+    # Generate X_test and y_test based on the artist libarary dataframe
     feats_test = drop_cols(artist_library_df)
     X_test = feats_test.drop(['Track_Popularity'], axis=1)
     y_vals_test = feats_test['Track_Popularity']
@@ -275,7 +274,7 @@ def prep_data_streamlit(artist_id):
     y_test = pop_classes(y_vals_test)
 
     # Return the training and test data, and the artist library
-    return X_train, y_train, X_test, y_test, artist_library_df
+    return X_train, y_train, X_test, y_test
 
 
 
