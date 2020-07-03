@@ -275,8 +275,6 @@ def plot_RFC_importances(sorted_mean, sorted_std, sorted_labels, sorted_colors, 
         mean_disp_list.append(mean_disp)
         msg_list.append(msg)
     importances = pd.DataFrame({'Feature':sorted_labels, 'Impact on popularity':msg_list, 'Importance':mean_disp_list})
-    importances = importances.set_index(importances.index + 1) # Increment by 1 for display purposes in Streamlit
-
 
     # Plot the data and format the plot
     plt.figure(figsize=(8, 8))
