@@ -90,7 +90,7 @@ if input_artist:
             error_txt = '**Error:** Artist library too small, no related artists found.'
         # Generate the training and test data
         X_train, y_train, X_test, y_test = prep_data_streamlit(artist_library_df, reclist_df)
-        
+
         # Set up and fit the model
         RFC = RandomForestClassifier(class_weight='balanced_subsample', n_estimators=100, max_depth=2, random_state=0)
         clf, cols2scale, cols2drop = build_pipeline(RFC)
@@ -103,7 +103,7 @@ if input_artist:
         # Re-index the dataframe so it starts at 1 for better readability
         song_suggestions = song_suggestions.set_index(song_suggestions.index + 1)
         # Display the results
-        loading_msg.text('')     
+        loading_msg.text('')
         st.dataframe(song_suggestions)
 
 
