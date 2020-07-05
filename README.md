@@ -26,8 +26,8 @@ The following languages and packages were used in this project:
 * matplotlib 3.2.2
 * seaborn 0.10.1
 * scikit-learn 0.22.1
-* spotipy 2.13.0 (for interfacing with the Spotify API)
-* streamlit 0.62.1 (for building a front-end dashboard)
+* [spotipy](https://spotipy.readthedocs.io/en/2.13.0/) 2.13.0 (for interfacing with the Spotify API)
+* [streamlit](https://docs.streamlit.io/en/stable/api.html) 0.62.1 (for building a front-end dashboard)
 
 As this project leverages data from Spotify, a client id and client secret are required as provided by the Spotify developer API (https://developer.spotify.com/dashboard). These details should be stored in a file called `spotify_credentials.py` in the same directory as `spotify_tools.py`. It should only contain the values for these two variables, as such:
 ```
